@@ -4,7 +4,7 @@ export type ViewType = 'dashboard' | 'itinerary' | 'map' | 'money' | 'spots' | '
 export type Currency = 'USD' | 'TWD';
 export type PaymentMethod = 'cash' | 'jing_card' | 'xiang_card';
 export type ExpenseType = 'daily' | 'major'; 
-export type EventType = 'sightseeing' | 'food' | 'transport' | 'shopping' | 'event' | 'accommodation';
+export type EventType = 'sightseeing' | 'food' | 'transport' | 'event' | 'accommodation' | 'shopping';
 export type SpotCategory = 'food' | 'sightseeing' | 'shopping';
 
 export interface FlightInfo {
@@ -32,7 +32,8 @@ export interface TripEvent {
 }
 
 export interface ItineraryDay {
-    date: string;
+    date: string; // "Day 1"
+    calendarDate?: string; // "2026-03-27"
     theme: string;
     mainLocation: string;
     lat: number;
@@ -46,7 +47,7 @@ export interface Expense {
     amount: number;
     currency: Currency;
     paymentMethod: PaymentMethod;
-    isShared: boolean; // 新增：是否平分
+    isShared: boolean;
     date: string;
     type: ExpenseType;
 }
