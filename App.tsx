@@ -5,6 +5,9 @@ import { loadData, saveData, AppData } from './services/storageService';
 import { DashboardView, ItineraryView, ExpenseView, SpotsView, MapView, TodoView, GasView, SurvivalGuideView } from './components/Views';
 import { GoogleGenAI } from '@google/genai';
 
+// 修正 TypeScript 找不到 process 的問題
+declare var process: any;
+
 const BottomNav: React.FC<{ view: ViewType; setView: (v: ViewType) => void }> = ({ view, setView }) => {
     const items: { id: ViewType; icon: string; label: string }[] = [
         { id: 'dashboard', icon: 'fa-house', label: '首頁' },
@@ -31,12 +34,14 @@ const AIAssistant: React.FC<{ data: AppData }> = ({ data }) => {
     const [loading, setLoading] = useState(false);
 
     const askAI = async () => {
-        // Safe access to process.env
+        // 安全地讀取 API KEY
         let apiKey = '';
         try {
-            apiKey = process.env.API_KEY || '';
+            if (typeof process !== 'undefined' && process.env) {
+                apiKey = process.env.API_KEY || '';
+            }
         } catch (e) {
-            console.warn("API Key environment variable not accessible directly.");
+            console.warn("無法存取環境變數");
         }
 
         if (!apiKey) {
@@ -87,19 +92,19 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
                 <button onClick={() => {
                     const code = btoa(encodeURIComponent(JSON.stringify(data)));
                     navigator.clipboard.writeText(code);
-                    alert("同步碼已複製！快貼給你的旅伴吧。");
+                    alert("同步碼已複製！快傳給旅伴吧。");
                 }} className="w-full py-3 bg-milk-tea-800 text-white rounded-xl text-xs font-bold mb-3 active:scale-95 transition-transform shadow-md">產生我的同步碼</button>
                 <div className="flex gap-2">
-                    <input value={syncCode} onChange={e => setSyncCode(e.target.value)} placeholder="貼上對方的同步碼" className="flex-1 p-3 bg-milk-tea-50 rounded-xl text-xs outline-none text-black font-bold border border-milk-tea-100" />
+                    <input value={syncCode} onChange={e => setSyncCode(e.target.value)} placeholder="貼上對方的代碼" className="flex-1 p-3 bg-milk-tea-50 rounded-xl text-xs outline-none text-black font-bold border border-milk-tea-100" />
                     <button onClick={() => {
                         if (!syncCode) return;
                         try {
                             const decoded = JSON.parse(decodeURIComponent(atob(syncCode)));
-                            if (confirm("這會覆蓋目前的行程資料，確定同步嗎？")) {
+                            if (confirm("這會覆蓋目前資料，確定嗎？")) {
                                 setData(decoded);
                                 alert("同步成功！");
                             }
-                        } catch(e) { alert("無效的同步碼，請確認格式是否正確。"); }
+                        } catch(e) { alert("代碼無效，請確認是否複製完整。"); }
                     }} className="px-4 bg-milk-tea-100 text-milk-tea-800 rounded-xl text-xs font-bold active:scale-95 transition-transform">同步</button>
                 </div>
             </div>
@@ -124,7 +129,7 @@ export default function App() {
         setData(loadData());
     }, []);
 
-    if (!data) return <div className="h-screen flex items-center justify-center bg-milk-tea-50 text-milk-tea-400">Loading Adventure...</div>;
+    if (!data) return <div className="h-screen flex items-center justify-center bg-milk-tea-50 text-milk-tea-400 font-bold">冒險載入中...</div>;
 
     const handleSetData = (newData: AppData) => {
         setData(newData);
