@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 美西之旅 | US Travel App</title>
+    
+    <!-- Mobile App Feel -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#F2ECE6">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Import Map: 解決瀏覽器無法直接解析 npm 套件的問題 -->
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19?dev",
+    "react-dom": "https://esm.sh/react-dom@19?dev",
+    "react-dom/client": "https://esm.sh/react-dom@19/client?dev",
+    "react/jsx-runtime": "https://esm.sh/react@19/jsx-runtime?dev",
+    "@google/genai": "https://esm.sh/@google/genai",
+    "recharts": "https://esm.sh/recharts",
+    "lucide-react": "https://esm.sh/lucide-react",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4"
+  }
+}
+</script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'milk-tea': {
+                            50: '#F9F7F5', 100: '#F2ECE6', 200: '#EBE5DE', 300: '#DCCEB9',
+                            400: '#D6C6B4', 500: '#B09A83', 600: '#8C7863', 800: '#4A3F35',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #F9F7F5; color: #4A3F35; font-family: 'Noto Sans TC', sans-serif; overflow-x: hidden; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
