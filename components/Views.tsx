@@ -3,6 +3,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { AppData, saveData } from '../services/storageService';
 import { TripEvent, ItineraryDay, Expense, Spot, Todo, EventType, PaymentMethod, SpotCategory, ExpenseType, GasStation, Currency, ViewType } from '../types';
 
+// 修正 TypeScript 報錯
+declare var process: any;
+
 // --- Helper Functions ---
 const formatMoney = (val: number) => {
     if (isNaN(val)) return "0";
@@ -272,7 +275,7 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                         <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">行程天數管理</h3><button onClick={() => setIsDayModalOpen(false)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
                         <div className="grid grid-cols-2 gap-3">
                             <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">天數編號</label><input value={dayForm.date} onChange={e => setDayForm({...dayForm, date: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" placeholder="Day 1" /></div>
-                            <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">選擇具體日期</label><input type="date" value={dayForm.calendarDate} onChange={e => setDayForm({...dayForm, calendarDate: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
+                            <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">選擇日期</label><input type="date" value={dayForm.calendarDate} onChange={e => setDayForm({...dayForm, calendarDate: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
                         </div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">今日主題</label><input value={dayForm.theme} onChange={e => setDayForm({...dayForm, theme: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" placeholder="如: 抵達洛杉磯" /></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">城市名稱 (天氣用)</label><input value={dayForm.mainLocation} onChange={e => setDayForm({...dayForm, mainLocation: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" placeholder="如: Los Angeles" /></div>
@@ -553,7 +556,7 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
                             <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">金額</label><input type="number" value={form.amount || ''} onChange={e => setForm({...form, amount: Number(e.target.value)})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="0.00" /></div>
                             <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">幣別</label><select value={form.currency} onChange={e => setForm({...form, currency: e.target.value as Currency})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border-none"><option value="USD">USD</option><option value="TWD">TWD</option></select></div>
                         </div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">支出品項 / 店名</label><input value={form.item} onChange={e => setForm({...form, item: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="例如：In-N-Out" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">品項 / 店名</label><input value={form.item} onChange={e => setForm({...form, item: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="例如：In-N-Out" /></div>
                         <div className="flex items-center justify-between p-3 bg-milk-tea-50 rounded-xl">
                             <span className="text-xs font-bold text-milk-tea-800">這是共享支出嗎？</span>
                             <input type="checkbox" checked={form.isShared} onChange={e => setForm({...form, isShared: e.target.checked})} className="w-5 h-5 accent-milk-tea-800 rounded-md" />
@@ -603,8 +606,8 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
                             </div>
                         </div>
                         <h4 className="font-bold text-milk-tea-900 text-sm">{spot.name}</h4>
-                        <p className="text-[10px] text-milk-tea-500 mt-1"><i className="fa-solid fa-map-pin mr-1 opacity-50"></i>{spot.location}</p>
-                        {spot.note && <p className="text-[10px] text-milk-tea-400 mt-2 italic bg-milk-tea-50 p-2 rounded-xl">"{spot.note}"</p>}
+                        <p className="text-[10px] text-milk-tea-500 mt-1 font-bold"><i className="fa-solid fa-map-pin mr-1 opacity-50"></i>{spot.location}</p>
+                        {spot.note && <p className="text-[10px] text-milk-tea-400 mt-2 italic bg-milk-tea-50 p-2 rounded-xl border border-milk-tea-100/30 font-bold">"{spot.note}"</p>}
                     </div>
                 ))}
             </div>
@@ -613,10 +616,10 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
                     <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 animate-in slide-in-from-bottom-full duration-300 shadow-2xl">
                         <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">新增口袋清單</h3><button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button></div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">地點名稱</label><input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" /></div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">精確地址 (導航用)</label><input value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">地點名稱</label><input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">精確地址 (導航用)</label><input value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">分類</label><select value={form.category} onChange={e => setForm({...form, category: e.target.value as SpotCategory})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border-none"><option value="sightseeing">觀光</option><option value="food">美食</option><option value="shopping">購物</option></select></div>
-                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg">加入我的收藏</button>
+                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">加入口袋清單</button>
                     </div>
                 </div>
             )}
@@ -638,11 +641,11 @@ export const MapView: React.FC<{ data: AppData; selectedDayIndex: number }> = ({
                 </div>
                 <div className="space-y-2">
                     <h3 className="text-base font-black text-milk-tea-800">開啟 Google Maps 導航</h3>
-                    <p className="text-[11px] text-milk-tea-500 font-medium leading-relaxed px-4">系統將自動彙整今日所有地點地址，點擊下方按鈕可直接啟動多點路徑規劃。</p>
+                    <p className="text-[11px] text-milk-tea-500 font-medium leading-relaxed px-4 font-bold">系統將彙整這一天所有行程的地點，自動生成多站路徑導航。</p>
                 </div>
                 {day && (
                     <button onClick={() => openDailyRoute(day)} className="bg-blue-600 text-white px-10 py-4 rounded-2xl text-[13px] font-black shadow-xl active:scale-95 transition-all flex items-center gap-2">
-                        <i className="fa-solid fa-diamond-turn-right"></i> 開啟 Google Maps 今日導航
+                        <i className="fa-solid fa-diamond-turn-right"></i> 開啟多點路徑導航
                     </button>
                 )}
             </div>
@@ -672,7 +675,7 @@ export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }
     return (
         <div className="space-y-6 pb-24">
             <div className="bg-white p-4 rounded-3xl card-shadow border border-milk-tea-50 flex gap-2">
-                <input value={newTodo} onChange={e => setNewTodo(e.target.value)} placeholder="新增一項清單..." className="flex-1 p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" />
+                <input value={newTodo} onChange={e => setNewTodo(e.target.value)} placeholder="新增一項清單..." className="flex-1 p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" />
                 <button onClick={() => handleAdd('general')} className="bg-milk-tea-800 text-white px-5 rounded-xl active:scale-90 transition-all shadow-md shadow-milk-tea-200"><i className="fa-solid fa-plus"></i></button>
             </div>
             {['general', 'packing'].map(cat => (
@@ -684,7 +687,7 @@ export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }
                                 <i className={`fa-solid ${t.done ? 'fa-circle-check text-milk-tea-800' : 'fa-circle text-milk-tea-100'} text-lg`}></i>
                                 <span className={`text-xs font-bold ${t.done ? 'line-through text-milk-tea-400' : 'text-milk-tea-800'}`}>{t.text}</span>
                             </div>
-                            <button onClick={() => handleDelete(t.id)} className="w-10 bg-red-50 text-red-200 hover:text-red-400 rounded-2xl transition-colors"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
+                            <button onClick={() => handleDelete(t.id)} className="w-10 bg-red-50 text-red-200 hover:text-red-400 rounded-2xl transition-colors active:bg-red-100"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
                         </div>
                     ))}
                 </div>
@@ -713,7 +716,7 @@ export const GasView: React.FC<{ data: AppData; setData: (d: AppData) => void }>
                             <span className={`text-[8px] font-black px-1.5 py-0.5 rounded text-white ${gs.isCostco ? 'bg-red-500 shadow-red-100' : 'bg-blue-500 shadow-blue-100'} shadow-sm`}>{gs.isCostco ? 'COSTCO' : 'GAS'}</span>
                             <h4 className="font-bold text-milk-tea-800 text-sm truncate">{gs.name}</h4>
                         </div>
-                        <p className="text-[10px] text-milk-tea-400 truncate">{gs.description}</p>
+                        <p className="text-[10px] text-milk-tea-400 truncate font-bold">{gs.description}</p>
                     </div>
                     <button onClick={() => openInGoogleMaps(gs.address)} className="w-10 h-10 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center active:scale-90 transition-all shadow-sm"><i className="fa-solid fa-location-arrow text-sm"></i></button>
                 </div>
