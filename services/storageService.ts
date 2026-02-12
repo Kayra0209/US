@@ -65,15 +65,3 @@ export const saveData = (data: AppData) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData)); 
     } catch (e) { console.error(e); }
 };
-
-export const exportDataToJson = (data: AppData) => {
-    const dataStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([dataStr], {type: "application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `my_trip_backup_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-};
