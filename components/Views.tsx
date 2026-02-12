@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { AppData, saveData } from '../services/storageService';
 import { TripEvent, ItineraryDay, Expense, Spot, Todo, EventType, PaymentMethod, SpotCategory, ExpenseType, GasStation, Currency, ViewType } from '../types';
 
-// 修正 TypeScript 報錯
+// 修正 GitHub Actions 編譯時找不到 process 的報錯
 declare var process: any;
 
 // --- Helper Functions ---
@@ -155,7 +155,16 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState<TripEvent | null>(null);
 
-    const [dayForm, setDayForm] = useState({ date: '', calendarDate: '', theme: '', mainLocation: '', lat: 34.05, lon: -118.24 });
+    // 確保這裡的初始化包含所有必要的屬性
+    const [dayForm, setDayForm] = useState<Omit<ItineraryDay, 'events'>>({ 
+        date: '', 
+        calendarDate: '', 
+        theme: '', 
+        mainLocation: '', 
+        lat: 34.05, 
+        lon: -118.24 
+    });
+    
     const [eventForm, setEventForm] = useState<TripEvent>({
         id: '', time: '09:00', title: '', type: 'sightseeing', location: '', note: '', url: ''
     });
@@ -275,7 +284,7 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                         <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">行程天數管理</h3><button onClick={() => setIsDayModalOpen(false)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
                         <div className="grid grid-cols-2 gap-3">
                             <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">天數編號</label><input value={dayForm.date} onChange={e => setDayForm({...dayForm, date: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" placeholder="Day 1" /></div>
-                            <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">選擇日期</label><input type="date" value={dayForm.calendarDate} onChange={e => setDayForm({...dayForm, calendarDate: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
+                            <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">選擇具體日期</label><input type="date" value={dayForm.calendarDate} onChange={e => setDayForm({...dayForm, calendarDate: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
                         </div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">今日主題</label><input value={dayForm.theme} onChange={e => setDayForm({...dayForm, theme: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" placeholder="如: 抵達洛杉磯" /></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1 tracking-widest">城市名稱 (天氣用)</label><input value={dayForm.mainLocation} onChange={e => setDayForm({...dayForm, mainLocation: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" placeholder="如: Los Angeles" /></div>
@@ -415,20 +424,6 @@ export const SurvivalGuideView: React.FC = () => {
                             </div>
                         )}
                     </div>
-
-                    <div className="bg-white p-5 rounded-3xl card-shadow border border-milk-tea-100 space-y-4">
-                        <h4 className="text-sm font-black text-milk-tea-800 flex items-center gap-2"><i className="fa-solid fa-circle-info text-blue-400"></i> 付費流程 SOP</h4>
-                        <div className="text-[11px] text-milk-tea-600 space-y-4 font-bold">
-                            <div className="border-l-4 border-blue-400 pl-4 py-1">
-                                <p className="text-blue-700 uppercase text-[9px] mb-1 tracking-widest">Sit-down 餐廳 (刷卡)</p>
-                                <p className="leading-relaxed">遞卡 ➔ 服務生拿去刷完拿回收據 ➔ 在 Tip 欄位填寫金額 ➔ Total 填入總計 ➔ 簽名 ➔ 收好卡片直接離開。</p>
-                            </div>
-                            <div className="border-l-4 border-green-400 pl-4 py-1">
-                                <p className="text-green-700 uppercase text-[9px] mb-1 tracking-widest">現金支付</p>
-                                <p className="leading-relaxed">將錢放入結帳本 ➔ 服務生找錢 ➔ 把要給的小費留在桌上或留在本子裡，直接離開即可。</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             ) : activeTab === 'clothing' ? (
                 <div className="space-y-4 animate-in fade-in duration-300">
@@ -463,15 +458,6 @@ export const SurvivalGuideView: React.FC = () => {
                                 <p className="text-[10px] font-black text-blue-700 uppercase tracking-widest">Carpool / HOV</p>
                                 <p className="text-[11px] text-blue-800 font-bold leading-relaxed">最左側菱形標誌車道。需載有 2人(含)以上方可進入。單人誤闖罰金 $490 起。</p>
                             </div>
-                            <div className="bg-milk-tea-50 p-4 rounded-2xl border border-milk-tea-200 space-y-2">
-                                <p className="text-[10px] font-black text-milk-tea-700 uppercase tracking-widest">路緣停車顏色代碼</p>
-                                <div className="text-[11px] space-y-2 font-bold leading-relaxed">
-                                    <p className="flex gap-2">🔴 <span className="text-red-600">絕對禁停</span> (包含公車站、消防栓)。</p>
-                                    <p className="flex gap-2">🟢 <span>限時停車</span> (通常 15-30 分鐘，看標牌)。</p>
-                                    <p className="flex gap-2">⚪ <span>乘客上下車</span> (司機不可離座)。</p>
-                                    <p className="flex gap-2">🔵 <span>殘障專用</span> (無標章罰金 $1000+)。</p>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -480,7 +466,7 @@ export const SurvivalGuideView: React.FC = () => {
     );
 };
 
-// --- Expense View ---
+// --- 其他 View (Expense, Spots, etc.) 保留原有邏輯並確保文字顏色 ---
 export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [form, setForm] = useState<Expense>({ id: '', item: '', amount: 0, currency: 'USD', paymentMethod: 'cash', isShared: true, date: new Date().toISOString().split('T')[0], type: 'daily' });
@@ -556,7 +542,7 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
                             <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">金額</label><input type="number" value={form.amount || ''} onChange={e => setForm({...form, amount: Number(e.target.value)})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="0.00" /></div>
                             <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">幣別</label><select value={form.currency} onChange={e => setForm({...form, currency: e.target.value as Currency})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border-none"><option value="USD">USD</option><option value="TWD">TWD</option></select></div>
                         </div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">品項 / 店名</label><input value={form.item} onChange={e => setForm({...form, item: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="例如：In-N-Out" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">支出品項 / 店名</label><input value={form.item} onChange={e => setForm({...form, item: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="例如：In-N-Out" /></div>
                         <div className="flex items-center justify-between p-3 bg-milk-tea-50 rounded-xl">
                             <span className="text-xs font-bold text-milk-tea-800">這是共享支出嗎？</span>
                             <input type="checkbox" checked={form.isShared} onChange={e => setForm({...form, isShared: e.target.checked})} className="w-5 h-5 accent-milk-tea-800 rounded-md" />
