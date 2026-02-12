@@ -16,6 +16,7 @@ export interface FlightInfo {
     departureTime?: string;
 }
 
+
 export interface TripEvent {
     id: string;
     time: string;
