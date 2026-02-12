@@ -1,4 +1,3 @@
-
 export type ViewType = 'dashboard' | 'itinerary' | 'map' | 'money' | 'spots' | 'todo' | 'settings' | 'gas' | 'guide';
 
 export type Currency = 'USD' | 'TWD';
@@ -6,6 +5,13 @@ export type PaymentMethod = 'cash' | 'jing_card' | 'xiang_card';
 export type ExpenseType = 'daily' | 'major'; 
 export type EventType = 'sightseeing' | 'food' | 'transport' | 'event' | 'accommodation' | 'shopping';
 export type SpotCategory = 'food' | 'sightseeing' | 'shopping';
+
+export interface ChatMessage {
+    id: string;
+    user: string;
+    text: string;
+    time: string;
+}
 
 export interface FlightInfo {
     flightNumber: string;
@@ -32,8 +38,8 @@ export interface TripEvent {
 }
 
 export interface ItineraryDay {
-    date: string; // "Day 1"
-    calendarDate?: string; // "2026-03-27"
+    date: string;
+    calendarDate?: string;
     theme: string;
     mainLocation: string;
     lat: number;
