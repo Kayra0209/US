@@ -369,36 +369,21 @@ export const SurvivalGuideView: React.FC = () => {
                 <div className="space-y-4 animate-in fade-in duration-300">
                     <div className="bg-milk-tea-800 p-6 rounded-3xl text-white shadow-xl relative overflow-hidden border-4 border-white/10">
                         <div className="absolute -right-4 -top-4 opacity-10 rotate-12"><i className="fa-solid fa-hand-holding-dollar text-8xl"></i></div>
-                        
                         <h3 className="text-xs font-black opacity-80 mb-4 uppercase tracking-widest relative z-10 text-white">小費速算 (USD)</h3>
-                        
                         <div className="mb-6 relative z-10">
                             <label className="text-[10px] font-black opacity-90 mb-2 block uppercase tracking-widest text-milk-tea-100">未稅金額 (Subtotal)</label>
-                            <input 
-                                type="number" 
-                                inputMode="decimal"
-                                value={bill} 
-                                onChange={e => setBill(e.target.value)} 
-                                className="w-full bg-white text-black text-2xl font-black rounded-2xl p-4 outline-none border-2 border-milk-tea-600 shadow-inner focus:ring-2 ring-milk-tea-300 transition-all placeholder:text-gray-400" 
-                                placeholder="0.00" 
-                            />
+                            <input type="number" inputMode="decimal" value={bill} onChange={e => setBill(e.target.value)} className="w-full bg-white text-black text-2xl font-black rounded-2xl p-4 outline-none border-2 border-milk-tea-600 shadow-inner focus:ring-2 ring-milk-tea-300 transition-all placeholder:text-gray-400" placeholder="0.00" />
                         </div>
-
                         <div className="space-y-3 relative z-10">
                             <label className="text-[10px] font-black opacity-90 uppercase tracking-widest block text-milk-tea-100">服務滿意度</label>
                             <div className="grid grid-cols-2 gap-2">
                                 {(['average', 'good', 'excellent', 'custom'] as const).map((lvl) => (
-                                    <button 
-                                        key={lvl}
-                                        onClick={() => setServiceLevel(lvl)}
-                                        className={`py-3 rounded-xl text-[10px] font-black border transition-all ${serviceLevel === lvl ? 'bg-white text-black border-white shadow-lg scale-105' : 'bg-milk-tea-900/40 text-milk-tea-50 border-white/20'}`}
-                                    >
-                                        {lvl === 'average' ? '普普通通 (15%)' : lvl === 'good' ? '服務不錯 (18%)' : lvl === 'excellent' ? '極佳讚爆 (20%)' : '自訂比例 %'}
+                                    <button key={lvl} onClick={() => setServiceLevel(lvl)} className={`py-3 rounded-xl text-[10px] font-black border transition-all ${serviceLevel === lvl ? 'bg-white text-black border-white shadow-lg scale-105' : 'bg-milk-tea-900/40 text-milk-tea-50 border-white/20'}`}>
+                                        {lvl === 'average' ? '普通 (15%)' : lvl === 'good' ? '不錯 (18%)' : lvl === 'excellent' ? '極佳 (20%)' : '自訂 %'}
                                     </button>
                                 ))}
                             </div>
                         </div>
-
                         {tippingResult && (
                             <div className="mt-8 space-y-4 animate-in fade-in zoom-in-95 duration-300 bg-white/5 p-4 rounded-2xl border border-white/10">
                                 <div className="flex justify-between items-center text-sm font-bold border-b border-white/10 pb-2">
@@ -412,25 +397,20 @@ export const SurvivalGuideView: React.FC = () => {
                             </div>
                         )}
                     </div>
-
                     <div className="bg-white p-5 rounded-3xl card-shadow border border-milk-tea-100">
                         <h3 className="font-black text-sm text-milk-tea-800 mb-4 flex items-center gap-2"><i className="fa-solid fa-circle-info text-blue-400"></i> 小費使用情境</h3>
-                        <div className="space-y-3">
+                        <div className="space-y-3 font-bold text-gray-700 text-[11px] leading-relaxed">
                             <div className="p-3 bg-milk-tea-50 rounded-xl">
-                                <p className="text-[10px] font-black text-milk-tea-600 mb-1">坐下點餐餐廳 (Sit-down)</p>
-                                <p className="text-[11px] font-bold text-gray-700">午餐 15-18%，晚餐 18-22%。若有 6 人以上，通常會自動計入 (Gratuity Included)。</p>
+                                <p className="text-milk-tea-600 font-black mb-1">坐下點餐餐廳 (Sit-down)</p>
+                                <p>午餐建議 15-18%，晚餐建議 18-22%。稅後金額也可，但傳統上是按「稅前金額」計算。如果帳單上寫著 Gratuity Included (通常 6 人以上)，就不需額外給。</p>
                             </div>
                             <div className="p-3 bg-milk-tea-50 rounded-xl">
-                                <p className="text-[10px] font-black text-milk-tea-600 mb-1">自助餐 (Buffet)</p>
-                                <p className="text-[11px] font-bold text-gray-700">每人約給 $1-3 元，主要給幫你收盤子、倒水的服務生。</p>
+                                <p className="text-milk-tea-600 font-black mb-1">自助餐 (Buffet)</p>
+                                <p>每人約給 $1-3 元，主要是給幫你收盤子、倒飲料的服務生。如果全程自理，可酌情給予或不給。</p>
                             </div>
                             <div className="p-3 bg-milk-tea-50 rounded-xl">
-                                <p className="text-[10px] font-black text-milk-tea-600 mb-1">酒吧與櫃台 (Bar/Counter)</p>
-                                <p className="text-[11px] font-bold text-gray-700">每杯飲料約給 $1 元。若是連鎖速食店 (如 In-N-Out) 則不需給小費。</p>
-                            </div>
-                            <div className="p-3 bg-milk-tea-50 rounded-xl">
-                                <p className="text-[10px] font-black text-milk-tea-600 mb-1">飯店清潔與行李 (Hotel)</p>
-                                <p className="text-[11px] font-bold text-gray-700">床頭小費每天約 $2-5。行李搬運員每件行李約 $1-2。</p>
+                                <p className="text-milk-tea-600 font-black mb-1">飯店服務 (Hotel)</p>
+                                <p>床頭小費每天放置 $2-5 (視房型與人數)。行李員幫忙提行李到房間，每件約 $1-2。代客停車 (Valet) 取車時通常給 $2-5。</p>
                             </div>
                         </div>
                     </div>
@@ -442,15 +422,15 @@ export const SurvivalGuideView: React.FC = () => {
                         <div className="space-y-6">
                             <div className="border-l-4 border-blue-200 pl-4 py-1">
                                 <h4 className="text-xs font-black text-blue-700 mb-1 uppercase tracking-widest">舊金山 SF / 沿海區</h4>
-                                <p className="text-[11px] text-gray-700 font-bold leading-relaxed">平均 10-18°C。風極大且寒。必備：防風外套、輕薄發熱衣。洋蔥式穿法是唯一正解。</p>
+                                <p className="text-[11px] text-gray-700 font-bold leading-relaxed">平均 10-18°C。風極大且寒冷。必備：防風外套、連帽衣、輕薄發熱衣。洋蔥式穿法是唯一正解，哪怕夏天也要帶外套。</p>
                             </div>
                             <div className="border-l-4 border-orange-200 pl-4 py-1">
                                 <h4 className="text-xs font-black text-orange-700 mb-1 uppercase tracking-widest">洛杉磯 LA / 聖地牙哥</h4>
-                                <p className="text-[11px] text-gray-700 font-bold leading-relaxed">平均 12-25°C。日夜溫差大。白天可穿短袖+太陽眼鏡，但傍晚後必須加外套。</p>
+                                <p className="text-[11px] text-gray-700 font-bold leading-relaxed">平均 12-25°C。日夜溫差很大。白天陽光普照可穿短袖+太陽眼鏡，但太陽下山後溫度會驟降，必須加件夾克。</p>
                             </div>
                             <div className="border-l-4 border-red-200 pl-4 py-1">
                                 <h4 className="text-xs font-black text-red-700 mb-1 uppercase tracking-widest">拉斯維加斯 / 峽谷區</h4>
-                                <p className="text-[11px] text-gray-700 font-bold leading-relaxed">氣溫變幻莫測。清晨與深夜接近 0-5°C。必備：護唇膏、保濕乳液、防風羽絨外套。</p>
+                                <p className="text-[11px] text-gray-700 font-bold leading-relaxed">氣候乾燥且變幻莫測。清晨與深夜可能接近 0-5°C，白天則乾熱。必備：護唇膏、保濕乳液、遮陽帽、防風羽絨外套。</p>
                             </div>
                         </div>
                     </div>
@@ -459,22 +439,22 @@ export const SurvivalGuideView: React.FC = () => {
                 <div className="space-y-4 animate-in fade-in duration-300">
                     <div className="bg-white p-5 rounded-3xl card-shadow border border-milk-tea-100">
                         <h3 className="font-black text-sm text-milk-tea-800 mb-5 flex items-center gap-2"><i className="fa-solid fa-traffic-light text-red-400"></i> 🛑 自駕重點法規</h3>
-                        <div className="space-y-4">
-                            <div className="bg-red-50 p-4 rounded-2xl border border-red-100 space-y-2">
-                                <p className="text-[10px] font-black text-red-700 uppercase tracking-widest">STOP Sign (絕對靜止)</p>
-                                <p className="text-[11px] text-red-800 font-bold leading-relaxed">看見 STOP 標誌必須完全停死 (Full Stop) 3秒。路口採先到先走原則，同時到則右方車優先。</p>
+                        <div className="space-y-4 font-bold text-[11px] leading-relaxed">
+                            <div className="bg-red-50 p-4 rounded-2xl border border-red-100 space-y-2 text-red-800">
+                                <p className="text-[10px] font-black uppercase tracking-widest">STOP Sign (生死攸關)</p>
+                                <p>看見 STOP 標誌必須「完全停死」(Full Stop) 3秒。路口採「先到先走」原則；若同時抵達，則右方車輛優先。未停穩被警察抓到罰金極重。</p>
                             </div>
-                            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 space-y-2">
-                                <p className="text-[10px] font-black text-blue-700 uppercase tracking-widest">紅燈右轉 (Right Turn on Red)</p>
-                                <p className="text-[11px] text-blue-800 font-bold leading-relaxed">除非有「No Turn on Red」標誌，否則紅燈可右轉，但必須先完全停下確認無來車與行人。</p>
+                            <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 space-y-2 text-blue-800">
+                                <p className="text-[10px] font-black uppercase tracking-widest">紅燈右轉 (Right Turn on Red)</p>
+                                <p>除非路口有「No Turn on Red」標誌，否則紅燈可右轉。但轉彎前必須先完全停穩，確認左右無來車且斑馬線上無人才可通過。</p>
                             </div>
-                            <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 space-y-2">
-                                <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest">行人優先 (Yield to Pedestrians)</p>
-                                <p className="text-[11px] text-amber-800 font-bold leading-relaxed">美國行人路權極大。只要行人踏上斑馬線或準備過馬路，車輛必須遠遠就停下禮讓。</p>
+                            <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 space-y-2 text-amber-800">
+                                <p className="text-[10px] font-black uppercase tracking-widest">Carpool / HOV 車道</p>
+                                <p>最左側菱形標誌車道。規定載客人數 (通常 2人以上) 才能進入。單人誤闖在加州罰金約 $490 起。</p>
                             </div>
-                            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-2">
-                                <p className="text-[10px] font-black text-gray-700 uppercase tracking-widest">校車停靠 (School Bus)</p>
-                                <p className="text-[11px] text-gray-800 font-bold leading-relaxed">校車閃紅燈並伸出 STOP 標誌時，兩向車流都必須停下，不可超越，罰金極重。</p>
+                            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-2 text-gray-800">
+                                <p className="text-[10px] font-black uppercase tracking-widest">行人路權 (Pedestrians)</p>
+                                <p>美國行人路權至高無上。只要行人踏上斑馬線或路口，車輛必須遠遠停下禮讓，絕對不可跟行人搶道或按喇叭催促。</p>
                             </div>
                         </div>
                     </div>
@@ -528,13 +508,11 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
                     <div className="text-right"><p className="text-[10px] opacity-60">翔已刷卡/付</p><p className="text-xl font-black">${formatMoney(stats.xiang)}</p></div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-md p-3 rounded-2xl flex justify-between items-center border border-white/10 relative z-10">
-                    <span className="text-xs font-bold">{stats.balance > 0 ? '翔 需支付給 璟' : stats.balance < 0 ? '璟 需支付給 翔' : '雙方目前平衡'}</span>
+                    <span className="text-xs font-bold">{stats.balance > 0 ? '翔 需支付給 璟' : stats.balance < 0 ? '璟 需支付給 翔' : '雙方平衡'}</span>
                     <span className="text-xl font-black text-milk-tea-100">${formatMoney(Math.abs(stats.balance))}</span>
                 </div>
             </div>
-
             <button onClick={() => setIsModalOpen(true)} className="w-full py-4 bg-milk-tea-100 text-milk-tea-800 rounded-2xl text-[10px] font-black border border-milk-tea-200 shadow-sm active:scale-95 transition-all"><i className="fa-solid fa-plus mr-2"></i> 記錄新支出</button>
-
             <div className="space-y-2">
                 {data.expenses.map(exp => (
                     <div key={exp.id} onClick={() => handleDelete(exp.id)} className="bg-white p-4 rounded-2xl card-shadow flex justify-between items-center border border-milk-tea-50 active:bg-milk-tea-50 transition-all">
@@ -546,11 +524,10 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
                     </div>
                 ))}
             </div>
-
             {isModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
                     <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in slide-in-from-bottom-full duration-300">
-                        <div className="flex justify-between items-center mb-2"><h3 className="text-lg font-black text-milk-tea-900">記錄一筆支出</h3><button onClick={() => setIsModalOpen(false)} className="w-8 h-8 rounded-full bg-milk-tea-50 text-milk-tea-300 flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button></div>
+                        <div className="flex justify-between items-center mb-2"><h3 className="text-lg font-black text-milk-tea-900">記錄一筆支出</h3><button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button></div>
                         <div className="flex gap-2">
                             {(['cash', 'jing_card', 'xiang_card'] as PaymentMethod[]).map(m => (
                                 <button key={m} onClick={() => setForm({...form, paymentMethod: m})} className={`flex-1 py-3 rounded-xl text-[10px] font-bold border transition-all ${form.paymentMethod === m ? 'bg-milk-tea-800 text-white border-transparent shadow-sm' : 'bg-milk-tea-50 text-milk-tea-400 border-milk-tea-100'}`}>{getPaymentLabel(m)}</button>
@@ -560,12 +537,9 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
                             <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">金額</label><input type="number" value={form.amount || ''} onChange={e => setForm({...form, amount: Number(e.target.value)})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="0.00" /></div>
                             <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">幣別</label><select value={form.currency} onChange={e => setForm({...form, currency: e.target.value as Currency})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border-none"><option value="USD">USD</option><option value="TWD">TWD</option></select></div>
                         </div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">支出品項 / 店名</label><input value={form.item} onChange={e => setForm({...form, item: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="例如：In-N-Out" /></div>
-                        <div className="flex items-center justify-between p-3 bg-milk-tea-50 rounded-xl">
-                            <span className="text-xs font-bold text-milk-tea-800">這是共享支出嗎？</span>
-                            <input type="checkbox" checked={form.isShared} onChange={e => setForm({...form, isShared: e.target.checked})} className="w-5 h-5 accent-milk-tea-800 rounded-md" />
-                        </div>
-                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">儲存支出紀錄</button>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 ml-1 tracking-widest uppercase">品項</label><input value={form.item} onChange={e => setForm({...form, item: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none" placeholder="例如：In-N-Out" /></div>
+                        <div className="flex items-center justify-between p-3 bg-milk-tea-50 rounded-xl"><span className="text-xs font-bold text-milk-tea-800">共享支出？</span><input type="checkbox" checked={form.isShared} onChange={e => setForm({...form, isShared: e.target.checked})} className="w-5 h-5 accent-milk-tea-800 rounded-md" /></div>
+                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">儲存紀錄</button>
                     </div>
                 </div>
             )}
@@ -576,6 +550,8 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
 // --- Spots View ---
 export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDayPickerOpen, setIsDayPickerOpen] = useState(false);
+    const [selectedSpotForItinerary, setSelectedSpotForItinerary] = useState<Spot | null>(null);
     const [editingSpot, setEditingSpot] = useState<Spot | null>(null);
     const [form, setForm] = useState<Spot>({ id: '', name: '', category: 'sightseeing', city: '', location: '', note: '' });
 
@@ -611,39 +587,76 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
         saveData(nextData);
     };
 
+    const handleAddToItinerary = (dayIndex: number) => {
+        if (!selectedSpotForItinerary) return;
+        const spot = selectedSpotForItinerary;
+        const newEvent: TripEvent = {
+            id: Date.now().toString(),
+            time: '12:00',
+            title: spot.name,
+            type: (spot.category as EventType) || 'sightseeing',
+            location: spot.location,
+            note: spot.note || '由口袋名單轉入'
+        };
+        const updatedItinerary = data.itinerary.map((d, i) => 
+            i === dayIndex ? { ...d, events: [...d.events, newEvent].sort((a,b) => a.time.localeCompare(b.time)) } : d
+        );
+        const nextData = { ...data, itinerary: updatedItinerary };
+        setData(nextData);
+        saveData(nextData);
+        setIsDayPickerOpen(false);
+        setSelectedSpotForItinerary(null);
+        alert(`已成功加入 ${data.itinerary[dayIndex].date} 行程！`);
+    };
+
     return (
         <div className="space-y-4 pb-24">
             <div className="bg-white rounded-3xl p-5 card-shadow border border-milk-tea-100 flex justify-between items-center">
                 <div><h2 className="text-xl font-black text-milk-tea-900 mb-1">口袋名單</h2><p className="text-[10px] text-milk-tea-400 font-bold uppercase tracking-widest">Backup & Must-Go Spots</p></div>
-                <button onClick={() => handleOpenModal()} className="w-10 h-10 bg-pink-50 text-pink-400 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition-all shadow-md"><i className="fa-solid fa-plus"></i></button>
+                <button onClick={() => handleOpenModal()} className="w-10 h-10 bg-pink-50 text-pink-400 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition-all"><i className="fa-solid fa-plus"></i></button>
             </div>
             <div className="grid grid-cols-1 gap-3">
                 {data.backupSpots.map(spot => (
-                    <div key={spot.id} className="bg-white p-4 rounded-2xl card-shadow border border-milk-tea-50 relative group active:bg-milk-tea-50 transition-all">
+                    <div key={spot.id} className="bg-white p-4 rounded-2xl card-shadow border border-milk-tea-50 relative group transition-all">
                         <div className="flex justify-between items-start mb-2">
-                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${getCategoryColor(spot.category as any)} text-white`}>{spot.category}</span>
+                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${getCategoryColor(spot.category as any)} text-white shadow-sm`}>{getCategoryLabel(spot.category)}</span>
                             <div className="flex gap-2">
-                                <button onClick={() => openInGoogleMaps(spot.location)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-compass text-xs"></i></button>
-                                <button onClick={() => handleOpenModal(spot)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-400 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-pen text-[9px]"></i></button>
-                                <button onClick={() => handleDelete(spot.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
+                                <button onClick={() => { setSelectedSpotForItinerary(spot); setIsDayPickerOpen(true); }} className="w-8 h-8 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-all"><i className="fa-solid fa-calendar-plus text-[10px]"></i></button>
+                                <button onClick={() => openInGoogleMaps(spot.location)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-all"><i className="fa-solid fa-compass text-xs"></i></button>
+                                <button onClick={() => handleOpenModal(spot)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-400 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-all"><i className="fa-solid fa-pen text-[9px]"></i></button>
+                                <button onClick={() => handleDelete(spot.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-all"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
                             </div>
                         </div>
                         <h4 className="font-bold text-milk-tea-900 text-sm">{spot.name}</h4>
-                        <p className="text-[10px] text-milk-tea-500 mt-1 font-bold"><i className="fa-solid fa-map-pin mr-1 opacity-50"></i>{spot.location}</p>
-                        {spot.note && <p className="text-[10px] text-milk-tea-400 mt-2 italic bg-milk-tea-50 p-2 rounded-xl border border-milk-tea-100/30 font-bold whitespace-pre-line">"{spot.note}"</p>}
+                        {spot.location && <p className="text-[10px] text-milk-tea-500 mt-1 font-bold"><i className="fa-solid fa-map-pin mr-1 opacity-50"></i>{spot.location}</p>}
+                        {spot.note && <p className="text-[10px] text-milk-tea-400 mt-2 italic bg-milk-tea-50 p-2 rounded-xl border border-milk-tea-100/30 font-bold">"{spot.note}"</p>}
                     </div>
                 ))}
             </div>
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 animate-in slide-in-from-bottom-full duration-300 shadow-2xl overflow-y-auto max-h-[90vh]">
-                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">{editingSpot ? '編輯口袋清單' : '新增口袋清單'}</h3><button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button></div>
+                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in slide-in-from-bottom-full duration-300 overflow-y-auto max-h-[90vh]">
+                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">{editingSpot ? '編輯口袋清單' : '新增口袋清單'}</h3><button onClick={() => setIsModalOpen(false)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">地點名稱</label><input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">精確地址 (導航用)</label><input value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">地址 (導航用)</label><input value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">分類</label><select value={form.category} onChange={e => setForm({...form, category: e.target.value as SpotCategory})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border-none"><option value="sightseeing">觀光</option><option value="food">美食</option><option value="shopping">購物</option></select></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">備註</label><textarea value={form.note} onChange={e => setForm({...form, note: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold text-black outline-none resize-none" rows={3} /></div>
-                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">{editingSpot ? '儲存修改' : '加入口袋清單'}</button>
+                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">儲存收藏</button>
+                    </div>
+                </div>
+            )}
+
+            {isDayPickerOpen && (
+                <div className="fixed inset-0 bg-milk-tea-900/60 z-[110] flex items-center justify-center p-6 backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+                        <h3 className="text-sm font-black text-milk-tea-800 text-center uppercase tracking-widest">要加入哪一天？</h3>
+                        <div className="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
+                            {data.itinerary.map((d, i) => (
+                                <button key={i} onClick={() => handleAddToItinerary(i)} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-milk-tea-700 hover:bg-milk-tea-100 transition-colors">{d.date} - {d.theme}</button>
+                            ))}
+                        </div>
+                        <button onClick={() => setIsDayPickerOpen(false)} className="w-full py-3 text-xs font-bold text-milk-tea-300">取消</button>
                     </div>
                 </div>
             )}
@@ -695,46 +708,40 @@ export const GasView: React.FC<{ data: AppData; setData: (d: AppData) => void }>
                 <div className="absolute -right-6 -bottom-6 opacity-20 rotate-12"><i className="fa-solid fa-gas-pump text-9xl"></i></div>
                 <h3 className="font-black text-sm uppercase mb-3 relative z-10 flex items-center gap-2"><i className="fa-solid fa-id-card"></i> Costco 加油攻略</h3>
                 <ul className="text-[11px] space-y-3 font-bold opacity-90 relative z-10 leading-relaxed">
-                    <li>1. 插卡後要求 ZIP Code，不要慌，按取消或叫店員 (Attendant)。</li>
-                    <li>2. 跟店員說: "International Costco card, bypass ZIP?"</li>
-                    <li>3. 店員會來刷卡繞過驗證，之後即可如常選擇油種加油。</li>
-                    <li>4. 或輸入 99999 或 00000 有機會直接通過。</li>
+                    <li>1. 插卡後若要求 ZIP Code，按取消或揮手叫店員 (Attendant)。</li>
+                    <li>2. 跟店員說: "International Costco card, can you bypass ZIP?"</li>
+                    <li>3. 店員會來幫你刷一下卡繞過驗證，即可開始加油。</li>
+                    <li>4. 或嘗試輸入 99999 或 00000 往往可以通過。</li>
                 </ul>
             </div>
-
-            <button onClick={() => handleOpenModal()} className="w-full py-4 bg-white border-2 border-dashed border-milk-tea-200 text-milk-tea-800 rounded-2xl text-[11px] font-black active:scale-95 transition-all flex items-center justify-center gap-2">
-                <i className="fa-solid fa-plus"></i> 新增加油站點
-            </button>
-
-            {data.gasStations.map(gs => (
-                <div key={gs.id} className="bg-white p-4 rounded-2xl card-shadow border border-milk-tea-50 flex justify-between items-center transition-all group">
-                    <div className="flex-1 min-w-0 pr-3">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded text-white ${gs.isCostco ? 'bg-red-500 shadow-red-100' : 'bg-blue-500 shadow-blue-100'} shadow-sm`}>{gs.isCostco ? 'COSTCO' : 'GAS'}</span>
-                            <h4 className="font-bold text-milk-tea-800 text-sm truncate">{gs.name}</h4>
+            <button onClick={() => handleOpenModal()} className="w-full py-4 bg-white border-2 border-dashed border-milk-tea-200 text-milk-tea-400 rounded-2xl text-[10px] font-black active:scale-95 transition-all shadow-sm"><i className="fa-solid fa-plus mr-2"></i> 新增加油站點</button>
+            <div className="space-y-2">
+                {data.gasStations.map(gs => (
+                    <div key={gs.id} className="bg-white p-4 rounded-2xl card-shadow border border-milk-tea-50 flex justify-between items-center transition-all group">
+                        <div className="flex-1 min-w-0 pr-3">
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded text-white ${gs.isCostco ? 'bg-red-500 shadow-red-100' : 'bg-blue-500 shadow-blue-100'} shadow-sm`}>{gs.isCostco ? 'COSTCO' : 'GAS'}</span>
+                                <h4 className="font-bold text-milk-tea-800 text-sm truncate">{gs.name}</h4>
+                            </div>
+                            <p className="text-[10px] text-milk-tea-400 truncate font-bold">{gs.description}</p>
                         </div>
-                        <p className="text-[10px] text-milk-tea-400 truncate font-bold">{gs.description}</p>
+                        <div className="flex gap-2">
+                            <button onClick={() => openInGoogleMaps(gs.address)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center active:scale-90 transition-all shadow-sm"><i className="fa-solid fa-location-arrow text-sm"></i></button>
+                            <button onClick={() => handleOpenModal(gs)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-400 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-all"><i className="fa-solid fa-pen text-[9px]"></i></button>
+                            <button onClick={() => handleDelete(gs.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition-all"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
+                        </div>
                     </div>
-                    <div className="flex gap-2">
-                        <button onClick={() => openInGoogleMaps(gs.address)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-600 rounded-full flex items-center justify-center active:scale-90 transition-all shadow-sm"><i className="fa-solid fa-location-arrow text-xs"></i></button>
-                        <button onClick={() => handleOpenModal(gs)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-400 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-pen text-[9px]"></i></button>
-                        <button onClick={() => handleDelete(gs.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
-                    </div>
-                </div>
-            ))}
-
+                ))}
+            </div>
             {isModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
                     <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 animate-in slide-in-from-bottom-full duration-300 shadow-2xl">
-                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">{editingGas ? '編輯站點' : '新增加油站'}</h3><button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button></div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">油站名稱</label><input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" placeholder="例如：Costco SF" /></div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">精確地址 (導航用)</label><input value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
-                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">備註 / 為什麼選這</label><input value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold text-black outline-none" placeholder="例如：機場最後補油點" /></div>
-                        <div className="flex items-center justify-between p-3 bg-milk-tea-50 rounded-xl">
-                            <span className="text-xs font-bold text-milk-tea-800">這是 Costco 嗎？</span>
-                            <input type="checkbox" checked={form.isCostco} onChange={e => setForm({...form, isCostco: e.target.checked})} className="w-5 h-5 accent-red-500 rounded-md" />
-                        </div>
-                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">儲存站點資訊</button>
+                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">{editingGas ? '編輯站點' : '新增加油站'}</h3><button onClick={() => setIsModalOpen(false)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1">名稱</label><input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1">地址 (導航用)</label><input value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1">備註</label><input value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold text-black outline-none" /></div>
+                        <div className="flex items-center justify-between p-3 bg-milk-tea-50 rounded-xl"><span className="text-xs font-bold text-milk-tea-800">這是 Costco 嗎？</span><input type="checkbox" checked={form.isCostco} onChange={e => setForm({...form, isCostco: e.target.checked})} className="w-5 h-5 accent-red-500 rounded-md" /></div>
+                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">儲存站點</button>
                     </div>
                 </div>
             )}
@@ -749,19 +756,19 @@ export const MapView: React.FC<{ data: AppData; selectedDayIndex: number }> = ({
         <div className="space-y-4 pb-24">
             <div className="bg-white rounded-3xl p-5 card-shadow border border-milk-tea-100">
                 <h2 className="text-xl font-black text-milk-tea-900 mb-1">地圖連動</h2>
-                <p className="text-[10px] text-milk-tea-400 font-bold uppercase tracking-widest">{day?.date || '目前未選擇日期'}</p>
+                <p className="text-[10px] text-milk-tea-400 font-bold uppercase tracking-widest">{day?.date || '未選擇日期'}</p>
             </div>
             <div className="aspect-square bg-white rounded-3xl card-shadow border border-milk-tea-100 flex flex-col items-center justify-center p-8 text-center gap-6">
-                <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-400 shadow-inner shadow-blue-100">
+                <div className="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center text-blue-400 shadow-inner">
                     <i className="fa-solid fa-map-location-dot text-5xl"></i>
                 </div>
                 <div className="space-y-2">
                     <h3 className="text-base font-black text-milk-tea-800">開啟 Google Maps 導航</h3>
-                    <p className="text-[11px] text-milk-tea-500 font-medium leading-relaxed px-4 font-bold">系統將彙整這一天所有行程的地點，自動生成多站路徑導航。</p>
+                    <p className="text-[11px] text-milk-tea-500 font-medium px-4 font-bold">系統將彙整當天所有行程地點，自動生成多站路徑導航。</p>
                 </div>
                 {day && (
                     <button onClick={() => openDailyRoute(day)} className="bg-blue-600 text-white px-10 py-4 rounded-2xl text-[13px] font-black shadow-xl active:scale-95 transition-all flex items-center gap-2">
-                        <i className="fa-solid fa-diamond-turn-right"></i> 開啟多點路徑導航
+                        <i className="fa-solid fa-diamond-turn-right"></i> 開啟路徑導航
                     </button>
                 )}
             </div>
@@ -772,39 +779,69 @@ export const MapView: React.FC<{ data: AppData; selectedDayIndex: number }> = ({
 // --- Todo View ---
 export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [newTodo, setNewTodo] = useState('');
+    const [activeCategory, setActiveCategory] = useState<'general' | 'packing'>('general');
+    const [daysBefore, setDaysBefore] = useState<string>('');
+
     const handleToggle = (id: string) => {
         const next = { ...data, todos: data.todos.map(t => t.id === id ? { ...t, done: !t.done } : t) };
         setData(next);
         saveData(next);
     };
-    const handleAdd = (cat: 'general' | 'packing') => {
+    const handleAdd = () => {
         if (!newTodo) return;
-        const next = { ...data, todos: [{ id: Date.now().toString(), text: newTodo, done: false, category: cat }, ...data.todos] };
+        const next = { ...data, todos: [{ 
+            id: Date.now().toString(), 
+            text: newTodo, 
+            done: false, 
+            category: activeCategory,
+            daysBefore: daysBefore ? parseInt(daysBefore) : undefined 
+        }, ...data.todos] };
         setData(next);
         saveData(next);
         setNewTodo('');
+        setDaysBefore('');
     };
     const handleDelete = (id: string) => {
         const next = { ...data, todos: data.todos.filter(t => t.id !== id) };
         setData(next);
         saveData(next);
     };
+
     return (
         <div className="space-y-6 pb-24">
-            <div className="bg-white p-4 rounded-3xl card-shadow border border-milk-tea-50 flex gap-2">
-                <input value={newTodo} onChange={e => setNewTodo(e.target.value)} placeholder="新增一項清單..." className="flex-1 p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" />
-                <button onClick={() => handleAdd('general')} className="bg-milk-tea-800 text-white px-5 rounded-xl active:scale-90 transition-all shadow-md shadow-milk-tea-200"><i className="fa-solid fa-plus"></i></button>
+            <div className="bg-white p-5 rounded-3xl card-shadow border border-milk-tea-50 space-y-4">
+                <div className="flex gap-2">
+                    {(['general', 'packing'] as const).map(c => (
+                        <button key={c} onClick={() => setActiveCategory(c)} className={`flex-1 py-2 text-[10px] font-black rounded-xl transition-all ${activeCategory === c ? 'bg-milk-tea-800 text-white' : 'bg-milk-tea-50 text-milk-tea-300'}`}>
+                            {c === 'general' ? '一般代辦' : '行李打包'}
+                        </button>
+                    ))}
+                </div>
+                <div className="flex gap-2">
+                    <input value={newTodo} onChange={e => setNewTodo(e.target.value)} placeholder="新增清單項目..." className="flex-1 p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-transparent focus:border-milk-tea-100" />
+                    <input type="number" value={daysBefore} onChange={e => setDaysBefore(e.target.value)} placeholder="天前" className="w-16 p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-transparent focus:border-milk-tea-100 text-center" />
+                    <button onClick={handleAdd} className="bg-milk-tea-800 text-white px-5 rounded-xl active:scale-90 transition-all shadow-md"><i className="fa-solid fa-plus"></i></button>
+                </div>
             </div>
+
             {['general', 'packing'].map(cat => (
                 <div key={cat} className="space-y-2">
-                    <h3 className="px-2 text-[10px] font-black text-milk-tea-400 uppercase tracking-widest flex justify-between items-center">{cat === 'general' ? '準備事項' : '行李打包'} <span className="text-[8px] opacity-40">{data.todos.filter(t => t.category === cat && t.done).length}/{data.todos.filter(t => t.category === cat).length}</span></h3>
-                    {data.todos.filter(t => t.category === cat).map(t => (
+                    <h3 className="px-2 text-[10px] font-black text-milk-tea-400 uppercase tracking-widest flex justify-between items-center">
+                        {cat === 'general' ? '📋 準備事項' : '🧳 行李打包'} 
+                        <span className="text-[8px] opacity-40">{data.todos.filter(t => t.category === cat && t.done).length}/{data.todos.filter(t => t.category === cat).length}</span>
+                    </h3>
+                    {data.todos.filter(t => t.category === cat).sort((a,b) => (b.daysBefore || 0) - (a.daysBefore || 0)).map(t => (
                         <div key={t.id} className="flex gap-2 group">
                             <div onClick={() => handleToggle(t.id)} className={`flex-1 bg-white p-4 rounded-2xl card-shadow border border-milk-tea-50 flex items-center gap-3 active:scale-[0.98] transition-all ${t.done ? 'opacity-50' : ''}`}>
                                 <i className={`fa-solid ${t.done ? 'fa-circle-check text-milk-tea-800' : 'fa-circle text-milk-tea-100'} text-lg`}></i>
-                                <span className={`text-xs font-bold ${t.done ? 'line-through text-milk-tea-400' : 'text-milk-tea-800'}`}>{t.text}</span>
+                                <div className="flex-1">
+                                    <span className={`text-xs font-bold ${t.done ? 'line-through text-milk-tea-400' : 'text-milk-tea-800'}`}>{t.text}</span>
+                                    {t.daysBefore !== undefined && (
+                                        <span className="ml-2 px-1.5 py-0.5 bg-milk-tea-100 text-milk-tea-500 text-[8px] font-black rounded uppercase">{t.daysBefore} 天前</span>
+                                    )}
+                                </div>
                             </div>
-                            <button onClick={() => handleDelete(t.id)} className="w-10 bg-red-50 text-red-200 hover:text-red-400 rounded-2xl transition-colors active:bg-red-100"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
+                            <button onClick={() => handleDelete(t.id)} className="w-10 bg-red-50 text-red-200 hover:text-red-400 rounded-2xl transition-colors active:bg-red-100 shadow-sm"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
                         </div>
                     ))}
                 </div>
