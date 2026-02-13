@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppData, saveData } from '../services/storageService';
 import { TripEvent, ItineraryDay, Expense, Spot, Todo, EventType, PaymentMethod, SpotCategory, ExpenseType, GasStation, Currency, ViewType } from '../types';
@@ -118,8 +117,13 @@ export const DashboardView: React.FC<{ data: AppData; setView: (v: ViewType) => 
     return (
         <div className="space-y-4 pb-24">
             <div className="flex justify-between items-center px-2 py-1">
-                <div><h1 className="text-lg font-black text-milk-tea-800">Hello, 2026!</h1><p className="text-[10px] font-bold text-milk-tea-400 uppercase tracking-widest">Our West Coast Adventure</p></div>
-                <button onClick={() => setView('settings')} className="w-10 h-10 bg-white rounded-full shadow-sm border border-milk-tea-100 flex items-center justify-center text-milk-tea-600 active:scale-90 transition-all shadow-md"><i className="fa-solid fa-cloud-arrow-up text-lg"></i></button>
+                <div>
+                    <h1 className="text-lg font-black text-milk-tea-800">{data.tripName || 'Hello, Trip!'}</h1>
+                    <p className="text-[10px] font-bold text-milk-tea-400 uppercase tracking-widest">Our Adventure</p>
+                </div>
+                <button onClick={() => setView('settings')} className="w-10 h-10 bg-white rounded-full shadow-sm border border-milk-tea-100 flex items-center justify-center text-milk-tea-600 active:scale-90 transition-all shadow-md">
+                    <i className="fa-solid fa-cloud-arrow-up text-lg"></i>
+                </button>
             </div>
             <div className="bg-gradient-to-r from-milk-tea-600 to-milk-tea-800 rounded-3xl p-6 text-white card-shadow relative overflow-hidden">
                 <div className="absolute -right-6 -bottom-6 opacity-10 transform rotate-12"><i className="fa-solid fa-plane-departure text-9xl"></i></div>
@@ -138,10 +142,8 @@ export const DashboardView: React.FC<{ data: AppData; setView: (v: ViewType) => 
             <div className="grid grid-cols-2 gap-3">
                 <button onClick={() => setView('money')} className="bg-white p-4 rounded-2xl card-shadow flex flex-col items-center gap-2 border border-milk-tea-50 active:scale-95 transition-transform"><div className="w-8 h-8 rounded-full bg-milk-tea-100 text-milk-tea-600 flex items-center justify-center shadow-sm"><i className="fa-solid fa-wallet text-sm"></i></div><span className="text-[10px] font-bold text-milk-tea-800">記帳明細</span></button>
                 <button onClick={() => setView('todo')} className="bg-white p-4 rounded-2xl card-shadow flex flex-col items-center gap-2 border border-milk-tea-50 active:scale-95 transition-transform"><div className="w-8 h-8 rounded-full bg-milk-tea-100 text-milk-tea-600 flex items-center justify-center shadow-sm"><i className="fa-solid fa-check text-sm"></i></div><span className="text-[10px] font-bold text-milk-tea-800">代辦/行李</span></button>
-                
                 <button onClick={() => setView('gas')} className="bg-white p-4 rounded-2xl card-shadow flex flex-col items-center gap-2 border border-milk-tea-50 active:scale-95 transition-transform"><div className="w-8 h-8 rounded-full bg-milk-tea-100 text-red-500 flex items-center justify-center shadow-sm"><i className="fa-solid fa-gas-pump text-sm"></i></div><span className="text-[10px] font-bold text-milk-tea-800">加油秘笈</span></button>
                 <button onClick={() => setView('guide')} className="bg-white p-4 rounded-2xl card-shadow flex flex-col items-center gap-2 border border-milk-tea-50 active:scale-95 transition-transform"><div className="w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shadow-sm"><i className="fa-solid fa-coins text-sm"></i></div><span className="text-[10px] font-bold text-milk-tea-800">小費速算</span></button>
-
                 <button onClick={() => setView('spots')} className="bg-white p-4 rounded-2xl card-shadow flex flex-col items-center gap-2 border border-milk-tea-50 active:scale-95 transition-transform"><div className="w-8 h-8 rounded-full bg-milk-tea-100 text-pink-400 flex items-center justify-center shadow-sm"><i className="fa-solid fa-heart text-sm"></i></div><span className="text-[10px] font-bold text-milk-tea-800">口袋名單</span></button>
                 <button onClick={() => setView('map')} className="bg-white p-4 rounded-2xl card-shadow flex flex-col items-center gap-2 border border-milk-tea-50 active:scale-95 transition-transform"><div className="w-8 h-8 rounded-full bg-milk-tea-100 text-blue-500 flex items-center justify-center shadow-sm"><i className="fa-solid fa-map-location-dot text-sm"></i></div><span className="text-[10px] font-bold text-milk-tea-800">地圖導航</span></button>
             </div>
@@ -149,13 +151,12 @@ export const DashboardView: React.FC<{ data: AppData; setView: (v: ViewType) => 
     );
 };
 
-// --- Itinerary View ---
+// ... 其他 View 代碼保持不變 ...
 export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayIndex: number; setSelectedDayIndex: any }> = ({ data, setData, selectedDayIndex, setSelectedDayIndex }) => {
     const [isDayModalOpen, setIsDayModalOpen] = useState(false);
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState<TripEvent | null>(null);
 
-    // 確保這裡的初始化包含所有必要的屬性
     const [dayForm, setDayForm] = useState<Omit<ItineraryDay, 'events'>>({ 
         date: '', 
         calendarDate: '', 
@@ -327,7 +328,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
     );
 };
 
-// --- Survival Guide View (Enhanced Tipping Calculator) ---
 export const SurvivalGuideView: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'driving' | 'tipping' | 'clothing'>('tipping');
     const [bill, setBill] = useState('');
@@ -466,7 +466,6 @@ export const SurvivalGuideView: React.FC = () => {
     );
 };
 
-// --- 其他 View (Expense, Spots, etc.) 保留原有邏輯並確保文字顏色 ---
 export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [form, setForm] = useState<Expense>({ id: '', item: '', amount: 0, currency: 'USD', paymentMethod: 'cash', isShared: true, date: new Date().toISOString().split('T')[0], type: 'daily' });
