@@ -29,7 +29,6 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
     const [copySuccess, setCopySuccess] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // 同步碼加密 (Base64)
     const syncCode = btoa(encodeURIComponent(JSON.stringify(data)));
 
     const handleCopy = () => {
@@ -64,7 +63,6 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
         }
     };
 
-    // 匯出 JSON 檔案
     const exportJSON = () => {
         const jsonStr = JSON.stringify(data, null, 2);
         const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -79,7 +77,6 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
         URL.revokeObjectURL(url);
     };
 
-    // 匯入 JSON 檔案
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -89,7 +86,6 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
             try {
                 const json = JSON.parse(event.target?.result as string);
                 processImportedData(json);
-                // 重置 input 以便下次選擇同一個檔案也能觸發
                 if (fileInputRef.current) fileInputRef.current.value = '';
             } catch (err) {
                 alert("❌ 解析失敗，請確保選擇的是正確的 JSON 檔案。");
@@ -110,87 +106,40 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
                 </div>
             </div>
 
-            {/* JSON 檔案區塊 */}
             <div className="bg-white p-6 rounded-[32px] border border-milk-tea-100 shadow-sm space-y-4">
                 <h4 className="text-[10px] font-black text-milk-tea-800 uppercase tracking-widest">JSON 檔案備份</h4>
                 <div className="grid grid-cols-2 gap-3">
-                    <button 
-                        onClick={exportJSON}
-                        className="flex flex-col items-center justify-center p-4 bg-milk-tea-50 rounded-2xl border border-milk-tea-100 hover:bg-milk-tea-100 transition-all gap-2"
-                    >
+                    <button onClick={exportJSON} className="flex flex-col items-center justify-center p-4 bg-milk-tea-50 rounded-2xl border border-milk-tea-100 hover:bg-milk-tea-100 transition-all gap-2">
                         <i className="fa-solid fa-file-export text-milk-tea-500 text-lg"></i>
                         <span className="text-[10px] font-black text-milk-tea-800">匯出備份檔</span>
                     </button>
-                    <button 
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex flex-col items-center justify-center p-4 bg-milk-tea-50 rounded-2xl border border-milk-tea-100 hover:bg-milk-tea-100 transition-all gap-2"
-                    >
+                    <button onClick={() => fileInputRef.current?.click()} className="flex flex-col items-center justify-center p-4 bg-milk-tea-50 rounded-2xl border border-milk-tea-100 hover:bg-milk-tea-100 transition-all gap-2">
                         <i className="fa-solid fa-file-import text-milk-tea-500 text-lg"></i>
                         <span className="text-[10px] font-black text-milk-tea-800">匯入並合併</span>
                     </button>
-                    <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        onChange={handleFileChange} 
-                        accept=".json" 
-                        className="hidden" 
-                    />
+                    <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".json" className="hidden" />
                 </div>
-                <p className="text-[9px] font-bold text-milk-tea-400 leading-relaxed text-center italic">適合長期保存、換手機或進階編輯時使用。</p>
             </div>
 
-            {/* 文字同步碼區塊 */}
             <div className="bg-white p-6 rounded-[32px] border border-milk-tea-100 shadow-sm space-y-4">
                 <div className="flex justify-between items-center">
                     <h4 className="text-[10px] font-black text-milk-tea-800 uppercase tracking-widest">快速同步碼</h4>
                     <span className="text-[9px] bg-green-100 text-green-600 px-2 py-0.5 rounded-full font-bold">即時共享</span>
                 </div>
-                
                 <div className="relative">
-                    <textarea 
-                        readOnly 
-                        value={syncCode}
-                        onClick={(e) => (e.target as HTMLTextAreaElement).select()}
-                        className="w-full h-20 p-3 bg-milk-tea-50 rounded-xl text-[8px] font-mono text-milk-tea-400 border border-milk-tea-100 focus:outline-none resize-none break-all"
-                    />
-                    <button 
-                        onClick={handleCopy}
-                        className={`absolute right-2 bottom-2 px-3 py-1.5 rounded-lg text-[9px] font-black shadow-lg active:scale-90 transition-all flex items-center gap-1.5 ${copySuccess ? 'bg-green-500 text-white' : 'bg-milk-tea-800 text-white'}`}
-                    >
+                    <textarea readOnly value={syncCode} onClick={(e) => (e.target as HTMLTextAreaElement).select()} className="w-full h-20 p-3 bg-milk-tea-50 rounded-xl text-[8px] font-mono text-milk-tea-400 border border-milk-tea-100 focus:outline-none resize-none break-all" />
+                    <button onClick={handleCopy} className={`absolute right-2 bottom-2 px-3 py-1.5 rounded-lg text-[9px] font-black shadow-lg active:scale-90 transition-all flex items-center gap-1.5 ${copySuccess ? 'bg-green-500 text-white' : 'bg-milk-tea-800 text-white'}`}>
                         <i className={`fa-solid ${copySuccess ? 'fa-check' : 'fa-copy'}`}></i>
                         {copySuccess ? '已複製' : '複製'}
                     </button>
                 </div>
-
                 <div className="space-y-3 pt-2">
-                    <textarea 
-                        value={importCode}
-                        onChange={(e) => setImportCode(e.target.value)}
-                        placeholder="在此貼上隊友的同步碼..."
-                        className="w-full h-24 p-3 bg-milk-tea-50 rounded-xl text-[10px] font-bold text-milk-tea-800 border border-milk-tea-100 focus:ring-1 focus:ring-milk-tea-200 outline-none resize-none"
-                    />
-                    <button 
-                        onClick={handleMergeCode}
-                        disabled={!importCode.trim()}
-                        className={`w-full py-3.5 rounded-2xl font-black text-xs shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 ${!importCode.trim() ? 'bg-milk-tea-100 text-milk-tea-300' : 'bg-milk-tea-800 text-white'}`}
-                    >
+                    <textarea value={importCode} onChange={(e) => setImportCode(e.target.value)} placeholder="在此貼上隊友的同步碼..." className="w-full h-24 p-3 bg-milk-tea-50 rounded-xl text-[10px] font-bold text-milk-tea-800 border border-milk-tea-100 focus:ring-1 focus:ring-milk-tea-200 outline-none resize-none" />
+                    <button onClick={handleMergeCode} disabled={!importCode.trim()} className={`w-full py-3.5 rounded-2xl font-black text-xs shadow-md active:scale-95 transition-all flex items-center justify-center gap-2 ${!importCode.trim() ? 'bg-milk-tea-100 text-milk-tea-300' : 'bg-milk-tea-800 text-white'}`}>
                         <i className="fa-solid fa-bolt"></i>
                         貼上並合併
                     </button>
                 </div>
-            </div>
-
-            <div className="bg-milk-tea-100/50 p-6 rounded-[32px] border border-milk-tea-100 space-y-3">
-                 <h4 className="text-[10px] font-black text-milk-tea-800 uppercase tracking-widest flex items-center gap-2">
-                    <i className="fa-solid fa-info-circle"></i> 同步說明
-                 </h4>
-                 <p className="text-[10px] font-bold text-milk-tea-500 leading-relaxed">
-                    無論是使用「JSON 檔案」或「同步碼」，系統都會執行智慧合併：
-                    <br/><br/>
-                    1. 保留雙方最新編輯過的行程項目。<br/>
-                    2. 補足對方有、但我方缺少的支出或待辦。<br/>
-                    3. 不會刪除任何現有的本地資料。
-                 </p>
             </div>
             
             <button onClick={() => confirm("確定要重置嗎？這將清空所有本地行程。") && setData(getInitialData())} className="w-full text-red-500 font-black text-[10px] opacity-40 py-4 uppercase tracking-widest">
@@ -212,7 +161,8 @@ export default function App() {
 
     return (
         <div className="max-w-md mx-auto h-screen flex flex-col bg-milk-tea-50 relative overflow-hidden shadow-2xl border-x border-milk-tea-100">
-            <main className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar">
+            {/* 修正 iPhone 頂部安全區域間距 */}
+            <main className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}>
                 {view === 'dashboard' && <DashboardView data={data} setView={setView} setSelectedDayIndex={setSelectedDayIndex} />}
                 {view === 'itinerary' && <ItineraryView data={data} setData={handleSetData} selectedDayIndex={selectedDayIndex} setSelectedDayIndex={setSelectedDayIndex} />}
                 {view === 'money' && <ExpenseView data={data} setData={handleSetData} />}
