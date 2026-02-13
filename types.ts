@@ -30,7 +30,6 @@ export interface TripEvent {
     type: EventType;
     location: string;
     note: string;
-    photo?: string; // 支援 Base64 憑證
     updatedAt: number;
     url?: string;
     bookingInfo?: string;
