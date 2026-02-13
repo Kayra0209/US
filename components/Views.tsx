@@ -581,28 +581,94 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
 // --- Todo View ---
 export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [newTodo, setNewTodo] = useState('');
+    const [activeTab, setActiveTab] = useState<'general' | 'packing'>('general');
+
     const handleToggle = (id: string) => {
         const next = { ...data, todos: data.todos.map(t => t.id === id ? { ...t, done: !t.done, updatedAt: Date.now() } : t) };
         setData(next); saveData(next);
     };
+
     const handleAdd = () => {
-        if (!newTodo) return;
-        const next = { ...data, todos: [{ id: Date.now().toString(), text: newTodo, done: false, category: 'general', updatedAt: Date.now() } as Todo, ...data.todos] };
+        if (!newTodo.trim()) return;
+        const next = { ...data, todos: [{ 
+            id: Date.now().toString(), 
+            text: newTodo, 
+            done: false, 
+            category: activeTab, 
+            updatedAt: Date.now() 
+        } as Todo, ...data.todos] };
         setData(next); saveData(next); setNewTodo('');
     };
+
+    const handleDelete = (id: string) => {
+        if (!confirm("確定要刪除嗎？")) return;
+        const next = { ...data, todos: data.todos.filter(t => t.id !== id) };
+        setData(next); saveData(next);
+    };
+
+    const filteredTodos = useMemo(() => {
+        return data.todos.filter(t => t.category === activeTab);
+    }, [data.todos, activeTab]);
+
     return (
         <div className="space-y-4 pb-24 animate-in">
-            <div className="flex gap-2 bg-white p-3 rounded-2xl border border-milk-tea-50 shadow-sm">
-                <input value={newTodo} onChange={e => setNewTodo(e.target.value)} placeholder="新增代辦..." className="flex-1 p-2 bg-milk-tea-50 rounded-xl text-xs font-black outline-none" />
-                <button onClick={handleAdd} className="bg-milk-tea-800 text-white px-4 rounded-xl active:scale-90 shadow-md"><i className="fa-solid fa-plus"></i></button>
+            {/* 分類切換 */}
+            <div className="flex bg-white p-1 rounded-2xl border border-milk-tea-100 mx-auto max-w-[320px] shadow-sm mb-4">
+                {(['general', 'packing'] as const).map(t => (
+                    <button 
+                        key={t} 
+                        onClick={() => setActiveTab(t)} 
+                        className={`flex-1 py-2 text-[10px] font-black rounded-xl transition-all ${activeTab === t ? 'bg-milk-tea-800 text-white shadow-md' : 'text-milk-tea-300'}`}
+                    >
+                        {t === 'general' ? '📋 待辦事項' : '🎒 打包清單'}
+                    </button>
+                ))}
             </div>
+
+            {/* 輸入框 */}
+            <div className="flex gap-2 bg-white p-3 rounded-2xl border border-milk-tea-50 shadow-sm">
+                <input 
+                    value={newTodo} 
+                    onChange={e => setNewTodo(e.target.value)} 
+                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                    placeholder={`新增${activeTab === 'general' ? '待辦' : '物品'}...`} 
+                    className="flex-1 p-2 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-milk-tea-100" 
+                />
+                <button onClick={handleAdd} className="bg-milk-tea-800 text-white px-4 rounded-xl active:scale-90 shadow-md transition-transform">
+                    <i className="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            {/* 列表 */}
             <div className="space-y-2">
-                {data.todos.map(t => (
-                    <div key={t.id} onClick={() => handleToggle(t.id)} className={`bg-white p-4 rounded-2xl border border-milk-tea-50 flex items-center gap-3 active:scale-[0.98] ${t.done ? 'opacity-40' : ''}`}>
-                        <i className={`fa-solid ${t.done ? 'fa-circle-check text-milk-tea-800' : 'fa-circle text-milk-tea-100'} text-lg`}></i>
-                        <span className={`text-xs font-bold ${t.done ? 'line-through' : ''}`}>{t.text}</span>
+                {filteredTodos.map(t => (
+                    <div key={t.id} className={`bg-white p-4 rounded-2xl border border-milk-tea-50 flex items-center justify-between shadow-sm transition-all ${t.done ? 'opacity-50' : ''}`}>
+                        <div className="flex items-center gap-3 flex-1" onClick={() => handleToggle(t.id)}>
+                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${t.done ? 'bg-milk-tea-800 border-milk-tea-800 text-white' : 'border-milk-tea-100'}`}>
+                                {t.done && <i className="fa-solid fa-check text-[10px]"></i>}
+                            </div>
+                            <div>
+                                <span className={`text-xs font-bold block ${t.done ? 'line-through text-milk-tea-200' : 'text-milk-tea-800'}`}>
+                                    {t.text}
+                                </span>
+                                {t.daysBefore && !t.done && (
+                                    <span className="text-[8px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded-md font-black uppercase mt-1 inline-block">
+                                        倒數 {t.daysBefore} 天
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                        <button onClick={() => handleDelete(t.id)} className="text-milk-tea-200 hover:text-red-400 p-2 active:scale-90 transition-all">
+                            <i className="fa-solid fa-trash-can text-[10px]"></i>
+                        </button>
                     </div>
                 ))}
+                {filteredTodos.length === 0 && (
+                    <div className="text-center py-20 opacity-20">
+                        <i className={`fa-solid ${activeTab === 'general' ? 'fa-clipboard-list' : 'fa-suitcase-rolling'} text-5xl mb-4`}></i>
+                        <p className="text-[10px] font-black uppercase tracking-widest">目前沒有項目</p>
+                    </div>
+                )}
             </div>
         </div>
     );
