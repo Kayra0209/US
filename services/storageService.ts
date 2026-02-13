@@ -1,6 +1,7 @@
+
 import { AppSettings, Expense, ItineraryDay, Spot, Todo, GasStation, ChatMessage } from '../types';
 
-const STORAGE_KEY = 'us_trip_v4_react';
+const STORAGE_KEY = 'us_trip_v5_react';
 
 export interface AppData {
     tripName: string;
@@ -26,20 +27,22 @@ const DEFAULT_GAS_STATIONS: GasStation[] = [
 
 const DEFAULT_ITINERARY: ItineraryDay[] = [
     { 
+        id: 'day-1',
         date: 'Day 1', calendarDate: '2026-03-27', theme: '🌟 旅程開始', mainLocation: '洛杉磯 LAX', lat: 33.9416, lon: -118.4085, 
+        updatedAt: Date.now(),
         events: [
-            { id: 'sample-1', time: '14:00', title: '抵達 LAX 機場', type: 'transport', location: '1 World Way, Los Angeles, CA 90045', note: '拿行李後前往 Car Rental Center 領車。', flightInfo: { flightNumber: 'BR12', airline: 'EVA Air', terminal: 'B' } },
-            { id: 'sample-2', time: '16:00', title: '領取租車', type: 'transport', location: 'Hertz Car Rental - LAX', note: '確認保險、檢查車傷、確認滿油。' }
+            { id: 'sample-1', time: '14:00', title: '抵達 LAX 機場', type: 'transport', location: '1 World Way, Los Angeles, CA 90045', note: '拿行李後前往 Car Rental Center 領車。', flightInfo: { flightNumber: 'BR12', airline: 'EVA Air', terminal: 'B' }, updatedAt: Date.now() },
+            { id: 'sample-2', time: '16:00', title: '領取租車', type: 'transport', location: 'Hertz Car Rental - LAX', note: '確認保險、檢查車傷、確認滿油。', updatedAt: Date.now() }
         ]
     }
 ];
 
 const DEFAULT_TODOS: Todo[] = [
-    { id: 't1', text: '申請國際駕照', done: false, category: 'general', daysBefore: 30 },
-    { id: 't2', text: '列印旅館與租車憑證', done: false, category: 'general', daysBefore: 7 },
-    { id: 't3', text: '美國轉接頭 (雖然一樣但備用)', done: false, category: 'packing', daysBefore: 3 },
-    { id: 't4', text: '防曬乳 & 太陽眼鏡', done: false, category: 'packing', daysBefore: 1 },
-    { id: 't5', text: '乳液 & 護唇膏 (美國極乾)', done: false, category: 'packing', daysBefore: 1 }
+    { id: 't1', text: '申請國際駕照', done: false, category: 'general', daysBefore: 30, updatedAt: Date.now() },
+    { id: 't2', text: '列印旅館與租車憑證', done: false, category: 'general', daysBefore: 7, updatedAt: Date.now() },
+    { id: 't3', text: '美國轉接頭', done: false, category: 'packing', daysBefore: 3, updatedAt: Date.now() },
+    { id: 't4', text: '防曬乳 & 太陽眼鏡', done: false, category: 'packing', daysBefore: 1, updatedAt: Date.now() },
+    { id: 't5', text: '乳液 & 護唇膏', done: false, category: 'packing', daysBefore: 1, updatedAt: Date.now() }
 ];
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -77,4 +80,50 @@ export const saveData = (data: AppData) => {
         const updatedData = { ...data, lastUpdated: Date.now() };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData)); 
     } catch (e) { console.error(e); }
+};
+
+/**
+ * 智慧合併：基於 ID 與 updatedAt 增量合併兩份資料
+ */
+export const mergeAppData = (local: AppData, remote: AppData): AppData => {
+    const mergeArray = <T extends { id: string; updatedAt: number }>(arr1: T[], arr2: T[]): T[] => {
+        const map = new Map<string, T>();
+        arr1.forEach(item => map.set(item.id, item));
+        arr2.forEach(remoteItem => {
+            const localItem = map.get(remoteItem.id);
+            if (!localItem || remoteItem.updatedAt > localItem.updatedAt) {
+                map.set(remoteItem.id, remoteItem);
+            }
+        });
+        return Array.from(map.values());
+    };
+
+    // 行程天數比較特殊，還需要合併內部的 events
+    const mergeItinerary = (localDays: ItineraryDay[], remoteDays: ItineraryDay[]): ItineraryDay[] => {
+        const dayMap = new Map<string, ItineraryDay>();
+        localDays.forEach(d => dayMap.set(d.id, d));
+        
+        remoteDays.forEach(rDay => {
+            const lDay = dayMap.get(rDay.id);
+            if (!lDay) {
+                dayMap.set(rDay.id, rDay);
+            } else {
+                // 如果 ID 相同，取較新的一個作為基礎，並合併 events
+                const base = rDay.updatedAt > lDay.updatedAt ? rDay : lDay;
+                const mergedEvents = mergeArray(lDay.events, rDay.events);
+                dayMap.set(rDay.id, { ...base, events: mergedEvents, updatedAt: Math.max(lDay.updatedAt, rDay.updatedAt) });
+            }
+        });
+        return Array.from(dayMap.values());
+    };
+
+    return {
+        ...local,
+        tripName: remote.lastUpdated > local.lastUpdated ? remote.tripName : local.tripName,
+        itinerary: mergeItinerary(local.itinerary, remote.itinerary),
+        expenses: mergeArray(local.expenses, remote.expenses),
+        todos: mergeArray(local.todos, remote.todos),
+        backupSpots: mergeArray(local.backupSpots, remote.backupSpots),
+        lastUpdated: Math.max(local.lastUpdated, remote.lastUpdated)
+    };
 };
