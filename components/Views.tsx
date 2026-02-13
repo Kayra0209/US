@@ -151,7 +151,7 @@ export const DashboardView: React.FC<{ data: AppData; setView: (v: ViewType) => 
     );
 };
 
-// ... 其他 View 代碼保持不變 ...
+// --- Itinerary View ---
 export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayIndex: number; setSelectedDayIndex: any }> = ({ data, setData, selectedDayIndex, setSelectedDayIndex }) => {
     const [isDayModalOpen, setIsDayModalOpen] = useState(false);
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -328,6 +328,7 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
     );
 };
 
+// --- Survival Guide View ---
 export const SurvivalGuideView: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'driving' | 'tipping' | 'clothing'>('tipping');
     const [bill, setBill] = useState('');
@@ -396,19 +397,6 @@ export const SurvivalGuideView: React.FC = () => {
                                     </button>
                                 ))}
                             </div>
-
-                            {serviceLevel === 'custom' && (
-                                <div className="mt-2 flex items-center gap-3 animate-in slide-in-from-top-2">
-                                    <input 
-                                        type="number"
-                                        value={customPct}
-                                        onChange={e => setCustomPct(e.target.value)}
-                                        className="flex-1 bg-white text-black border-none rounded-xl p-3 text-center text-sm font-black outline-none shadow-inner placeholder:text-gray-400"
-                                        placeholder="輸入百分比"
-                                    />
-                                    <span className="text-lg font-black text-white">%</span>
-                                </div>
-                            )}
                         </div>
 
                         {tippingResult && (
@@ -423,6 +411,28 @@ export const SurvivalGuideView: React.FC = () => {
                                 </div>
                             </div>
                         )}
+                    </div>
+
+                    <div className="bg-white p-5 rounded-3xl card-shadow border border-milk-tea-100">
+                        <h3 className="font-black text-sm text-milk-tea-800 mb-4 flex items-center gap-2"><i className="fa-solid fa-circle-info text-blue-400"></i> 小費使用情境</h3>
+                        <div className="space-y-3">
+                            <div className="p-3 bg-milk-tea-50 rounded-xl">
+                                <p className="text-[10px] font-black text-milk-tea-600 mb-1">坐下點餐餐廳 (Sit-down)</p>
+                                <p className="text-[11px] font-bold text-gray-700">午餐 15-18%，晚餐 18-22%。若有 6 人以上，通常會自動計入 (Gratuity Included)。</p>
+                            </div>
+                            <div className="p-3 bg-milk-tea-50 rounded-xl">
+                                <p className="text-[10px] font-black text-milk-tea-600 mb-1">自助餐 (Buffet)</p>
+                                <p className="text-[11px] font-bold text-gray-700">每人約給 $1-3 元，主要給幫你收盤子、倒水的服務生。</p>
+                            </div>
+                            <div className="p-3 bg-milk-tea-50 rounded-xl">
+                                <p className="text-[10px] font-black text-milk-tea-600 mb-1">酒吧與櫃台 (Bar/Counter)</p>
+                                <p className="text-[11px] font-bold text-gray-700">每杯飲料約給 $1 元。若是連鎖速食店 (如 In-N-Out) 則不需給小費。</p>
+                            </div>
+                            <div className="p-3 bg-milk-tea-50 rounded-xl">
+                                <p className="text-[10px] font-black text-milk-tea-600 mb-1">飯店清潔與行李 (Hotel)</p>
+                                <p className="text-[11px] font-bold text-gray-700">床頭小費每天約 $2-5。行李搬運員每件行李約 $1-2。</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             ) : activeTab === 'clothing' ? (
@@ -448,15 +458,23 @@ export const SurvivalGuideView: React.FC = () => {
             ) : (
                 <div className="space-y-4 animate-in fade-in duration-300">
                     <div className="bg-white p-5 rounded-3xl card-shadow border border-milk-tea-100">
-                        <h3 className="font-black text-sm text-milk-tea-800 mb-5 flex items-center gap-2"><i className="fa-solid fa-traffic-light text-red-400"></i> 🛑 重點交通法規</h3>
+                        <h3 className="font-black text-sm text-milk-tea-800 mb-5 flex items-center gap-2"><i className="fa-solid fa-traffic-light text-red-400"></i> 🛑 自駕重點法規</h3>
                         <div className="space-y-4">
                             <div className="bg-red-50 p-4 rounded-2xl border border-red-100 space-y-2">
-                                <p className="text-[10px] font-black text-red-700 uppercase tracking-widest">STOP Sign (生死攸關)</p>
-                                <p className="text-[11px] text-red-800 font-bold leading-relaxed">看見此標誌必須「完全靜止」3秒，不可滑行。先到路口者先走。</p>
+                                <p className="text-[10px] font-black text-red-700 uppercase tracking-widest">STOP Sign (絕對靜止)</p>
+                                <p className="text-[11px] text-red-800 font-bold leading-relaxed">看見 STOP 標誌必須完全停死 (Full Stop) 3秒。路口採先到先走原則，同時到則右方車優先。</p>
                             </div>
                             <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100 space-y-2">
-                                <p className="text-[10px] font-black text-blue-700 uppercase tracking-widest">Carpool / HOV</p>
-                                <p className="text-[11px] text-blue-800 font-bold leading-relaxed">最左側菱形標誌車道。需載有 2人(含)以上方可進入。單人誤闖罰金 $490 起。</p>
+                                <p className="text-[10px] font-black text-blue-700 uppercase tracking-widest">紅燈右轉 (Right Turn on Red)</p>
+                                <p className="text-[11px] text-blue-800 font-bold leading-relaxed">除非有「No Turn on Red」標誌，否則紅燈可右轉，但必須先完全停下確認無來車與行人。</p>
+                            </div>
+                            <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 space-y-2">
+                                <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest">行人優先 (Yield to Pedestrians)</p>
+                                <p className="text-[11px] text-amber-800 font-bold leading-relaxed">美國行人路權極大。只要行人踏上斑馬線或準備過馬路，車輛必須遠遠就停下禮讓。</p>
+                            </div>
+                            <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 space-y-2">
+                                <p className="text-[10px] font-black text-gray-700 uppercase tracking-widest">校車停靠 (School Bus)</p>
+                                <p className="text-[11px] text-gray-800 font-bold leading-relaxed">校車閃紅燈並伸出 STOP 標誌時，兩向車流都必須停下，不可超越，罰金極重。</p>
                             </div>
                         </div>
                     </div>
@@ -466,6 +484,7 @@ export const SurvivalGuideView: React.FC = () => {
     );
 };
 
+// --- Expense View ---
 export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [form, setForm] = useState<Expense>({ id: '', item: '', amount: 0, currency: 'USD', paymentMethod: 'cash', isShared: true, date: new Date().toISOString().split('T')[0], type: 'daily' });
@@ -518,7 +537,7 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
 
             <div className="space-y-2">
                 {data.expenses.map(exp => (
-                    <div key={exp.id} onContextMenu={(e) => { e.preventDefault(); handleDelete(exp.id); }} className="bg-white p-4 rounded-2xl card-shadow flex justify-between items-center border border-milk-tea-50 active:bg-milk-tea-50 transition-all">
+                    <div key={exp.id} onClick={() => handleDelete(exp.id)} className="bg-white p-4 rounded-2xl card-shadow flex justify-between items-center border border-milk-tea-50 active:bg-milk-tea-50 transition-all">
                         <div className="flex items-center gap-3">
                             <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-[10px] ${getPaymentColor(exp.paymentMethod)} shadow-sm`}><i className="fa-solid fa-credit-card"></i></div>
                             <div><h4 className="font-bold text-milk-tea-800 text-sm">{exp.item}</h4><p className="text-[9px] text-milk-tea-400 font-bold">{getPaymentLabel(exp.paymentMethod)} · {exp.date}</p></div>
@@ -554,17 +573,35 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
     );
 };
 
+// --- Spots View ---
 export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingSpot, setEditingSpot] = useState<Spot | null>(null);
     const [form, setForm] = useState<Spot>({ id: '', name: '', category: 'sightseeing', city: '', location: '', note: '' });
+
+    const handleOpenModal = (spot?: Spot) => {
+        if (spot) {
+            setEditingSpot(spot);
+            setForm(spot);
+        } else {
+            setEditingSpot(null);
+            setForm({ id: '', name: '', category: 'sightseeing', city: '', location: '', note: '' });
+        }
+        setIsModalOpen(true);
+    };
 
     const handleSave = () => {
         if (!form.name) return;
-        const nextData = { ...data, backupSpots: [{ ...form, id: Date.now().toString() }, ...data.backupSpots] };
+        let nextSpots = [];
+        if (editingSpot) {
+            nextSpots = data.backupSpots.map(s => s.id === editingSpot.id ? { ...form } : s);
+        } else {
+            nextSpots = [{ ...form, id: Date.now().toString() }, ...data.backupSpots];
+        }
+        const nextData = { ...data, backupSpots: nextSpots };
         setData(nextData);
         saveData(nextData);
         setIsModalOpen(false);
-        setForm({ id: '', name: '', category: 'sightseeing', city: '', location: '', note: '' });
     };
 
     const handleDelete = (id: string) => {
@@ -578,7 +615,7 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
         <div className="space-y-4 pb-24">
             <div className="bg-white rounded-3xl p-5 card-shadow border border-milk-tea-100 flex justify-between items-center">
                 <div><h2 className="text-xl font-black text-milk-tea-900 mb-1">口袋名單</h2><p className="text-[10px] text-milk-tea-400 font-bold uppercase tracking-widest">Backup & Must-Go Spots</p></div>
-                <button onClick={() => setIsModalOpen(true)} className="w-10 h-10 bg-pink-50 text-pink-400 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition-all shadow-md"><i className="fa-solid fa-heart"></i></button>
+                <button onClick={() => handleOpenModal()} className="w-10 h-10 bg-pink-50 text-pink-400 rounded-full flex items-center justify-center shadow-sm active:scale-95 transition-all shadow-md"><i className="fa-solid fa-plus"></i></button>
             </div>
             <div className="grid grid-cols-1 gap-3">
                 {data.backupSpots.map(spot => (
@@ -586,25 +623,27 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
                         <div className="flex justify-between items-start mb-2">
                             <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${getCategoryColor(spot.category as any)} text-white`}>{spot.category}</span>
                             <div className="flex gap-2">
-                                <button onClick={() => openInGoogleMaps(spot.location)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center hover:bg-blue-100 active:scale-90 transition-all shadow-sm"><i className="fa-solid fa-compass text-xs"></i></button>
-                                <button onClick={() => handleDelete(spot.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center transition-colors shadow-sm"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
+                                <button onClick={() => openInGoogleMaps(spot.location)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-compass text-xs"></i></button>
+                                <button onClick={() => handleOpenModal(spot)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-400 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-pen text-[9px]"></i></button>
+                                <button onClick={() => handleDelete(spot.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
                             </div>
                         </div>
                         <h4 className="font-bold text-milk-tea-900 text-sm">{spot.name}</h4>
                         <p className="text-[10px] text-milk-tea-500 mt-1 font-bold"><i className="fa-solid fa-map-pin mr-1 opacity-50"></i>{spot.location}</p>
-                        {spot.note && <p className="text-[10px] text-milk-tea-400 mt-2 italic bg-milk-tea-50 p-2 rounded-xl border border-milk-tea-100/30 font-bold">"{spot.note}"</p>}
+                        {spot.note && <p className="text-[10px] text-milk-tea-400 mt-2 italic bg-milk-tea-50 p-2 rounded-xl border border-milk-tea-100/30 font-bold whitespace-pre-line">"{spot.note}"</p>}
                     </div>
                 ))}
             </div>
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 animate-in slide-in-from-bottom-full duration-300 shadow-2xl">
-                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">新增口袋清單</h3><button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button></div>
+                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 animate-in slide-in-from-bottom-full duration-300 shadow-2xl overflow-y-auto max-h-[90vh]">
+                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">{editingSpot ? '編輯口袋清單' : '新增口袋清單'}</h3><button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">地點名稱</label><input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">精確地址 (導航用)</label><input value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
                         <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">分類</label><select value={form.category} onChange={e => setForm({...form, category: e.target.value as SpotCategory})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border-none"><option value="sightseeing">觀光</option><option value="food">美食</option><option value="shopping">購物</option></select></div>
-                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">加入口袋清單</button>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">備註</label><textarea value={form.note} onChange={e => setForm({...form, note: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold text-black outline-none resize-none" rows={3} /></div>
+                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">{editingSpot ? '儲存修改' : '加入口袋清單'}</button>
                     </div>
                 </div>
             )}
@@ -612,6 +651,98 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
     );
 };
 
+// --- Gas View ---
+export const GasView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingGas, setEditingGas] = useState<GasStation | null>(null);
+    const [form, setForm] = useState<GasStation>({ id: '', name: '', address: '', description: '', isCostco: true });
+
+    const handleOpenModal = (gs?: GasStation) => {
+        if (gs) {
+            setEditingGas(gs);
+            setForm(gs);
+        } else {
+            setEditingGas(null);
+            setForm({ id: '', name: '', address: '', description: '', isCostco: true });
+        }
+        setIsModalOpen(true);
+    };
+
+    const handleSave = () => {
+        if (!form.name || !form.address) return;
+        let nextStations = [];
+        if (editingGas) {
+            nextStations = data.gasStations.map(s => s.id === editingGas.id ? { ...form } : s);
+        } else {
+            nextStations = [{ ...form, id: Date.now().toString() }, ...data.gasStations];
+        }
+        const nextData = { ...data, gasStations: nextStations };
+        setData(nextData);
+        saveData(nextData);
+        setIsModalOpen(false);
+    };
+
+    const handleDelete = (id: string) => {
+        if (!confirm("確定移除此加油站？")) return;
+        const nextData = { ...data, gasStations: data.gasStations.filter(s => s.id !== id) };
+        setData(nextData);
+        saveData(nextData);
+    };
+
+    return (
+        <div className="space-y-4 pb-24">
+            <div className="bg-gradient-to-br from-red-600 to-blue-700 rounded-3xl p-5 text-white shadow-xl relative overflow-hidden border-4 border-white/10">
+                <div className="absolute -right-6 -bottom-6 opacity-20 rotate-12"><i className="fa-solid fa-gas-pump text-9xl"></i></div>
+                <h3 className="font-black text-sm uppercase mb-3 relative z-10 flex items-center gap-2"><i className="fa-solid fa-id-card"></i> Costco 加油攻略</h3>
+                <ul className="text-[11px] space-y-3 font-bold opacity-90 relative z-10 leading-relaxed">
+                    <li>1. 插卡後要求 ZIP Code，不要慌，按取消或叫店員 (Attendant)。</li>
+                    <li>2. 跟店員說: "International Costco card, bypass ZIP?"</li>
+                    <li>3. 店員會來刷卡繞過驗證，之後即可如常選擇油種加油。</li>
+                    <li>4. 或輸入 99999 或 00000 有機會直接通過。</li>
+                </ul>
+            </div>
+
+            <button onClick={() => handleOpenModal()} className="w-full py-4 bg-white border-2 border-dashed border-milk-tea-200 text-milk-tea-800 rounded-2xl text-[11px] font-black active:scale-95 transition-all flex items-center justify-center gap-2">
+                <i className="fa-solid fa-plus"></i> 新增加油站點
+            </button>
+
+            {data.gasStations.map(gs => (
+                <div key={gs.id} className="bg-white p-4 rounded-2xl card-shadow border border-milk-tea-50 flex justify-between items-center transition-all group">
+                    <div className="flex-1 min-w-0 pr-3">
+                        <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded text-white ${gs.isCostco ? 'bg-red-500 shadow-red-100' : 'bg-blue-500 shadow-blue-100'} shadow-sm`}>{gs.isCostco ? 'COSTCO' : 'GAS'}</span>
+                            <h4 className="font-bold text-milk-tea-800 text-sm truncate">{gs.name}</h4>
+                        </div>
+                        <p className="text-[10px] text-milk-tea-400 truncate font-bold">{gs.description}</p>
+                    </div>
+                    <div className="flex gap-2">
+                        <button onClick={() => openInGoogleMaps(gs.address)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-600 rounded-full flex items-center justify-center active:scale-90 transition-all shadow-sm"><i className="fa-solid fa-location-arrow text-xs"></i></button>
+                        <button onClick={() => handleOpenModal(gs)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-400 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-pen text-[9px]"></i></button>
+                        <button onClick={() => handleDelete(gs.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
+                    </div>
+                </div>
+            ))}
+
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 animate-in slide-in-from-bottom-full duration-300 shadow-2xl">
+                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">{editingGas ? '編輯站點' : '新增加油站'}</h3><button onClick={() => setIsModalOpen(false)} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center"><i className="fa-solid fa-xmark"></i></button></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">油站名稱</label><input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" placeholder="例如：Costco SF" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">精確地址 (導航用)</label><input value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black text-black outline-none border border-transparent focus:border-milk-tea-300" /></div>
+                        <div><label className="text-[9px] font-black text-milk-tea-400 uppercase tracking-widest ml-1">備註 / 為什麼選這</label><input value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold text-black outline-none" placeholder="例如：機場最後補油點" /></div>
+                        <div className="flex items-center justify-between p-3 bg-milk-tea-50 rounded-xl">
+                            <span className="text-xs font-bold text-milk-tea-800">這是 Costco 嗎？</span>
+                            <input type="checkbox" checked={form.isCostco} onChange={e => setForm({...form, isCostco: e.target.checked})} className="w-5 h-5 accent-red-500 rounded-md" />
+                        </div>
+                        <button onClick={handleSave} className="w-full py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black shadow-lg active:scale-95 transition-all">儲存站點資訊</button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- Map View ---
 export const MapView: React.FC<{ data: AppData; selectedDayIndex: number }> = ({ data, selectedDayIndex }) => {
     const day = data.itinerary[selectedDayIndex];
     return (
@@ -638,6 +769,7 @@ export const MapView: React.FC<{ data: AppData; selectedDayIndex: number }> = ({
     );
 };
 
+// --- Todo View ---
 export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [newTodo, setNewTodo] = useState('');
     const handleToggle = (id: string) => {
@@ -675,35 +807,6 @@ export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }
                             <button onClick={() => handleDelete(t.id)} className="w-10 bg-red-50 text-red-200 hover:text-red-400 rounded-2xl transition-colors active:bg-red-100"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
                         </div>
                     ))}
-                </div>
-            ))}
-        </div>
-    );
-};
-
-export const GasView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
-    return (
-        <div className="space-y-4 pb-24">
-            <div className="bg-gradient-to-br from-red-600 to-blue-700 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden border-4 border-white/10">
-                <div className="absolute -right-6 -bottom-6 opacity-20 rotate-12"><i className="fa-solid fa-gas-pump text-9xl"></i></div>
-                <h3 className="font-black text-sm uppercase mb-3 relative z-10 flex items-center gap-2"><i className="fa-solid fa-id-card"></i> Costco 加油攻略</h3>
-                <ul className="text-[11px] space-y-3 font-bold opacity-90 relative z-10 leading-relaxed">
-                    <li>1. 插卡後若要求 ZIP Code，不要慌，按取消或揮手叫店員 (Attendant)。</li>
-                    <li>2. 向店員說: "I have an international Costco card, can you bypass ZIP code?"</li>
-                    <li>3. 店員會來幫你刷一下卡繞過 ZIP Code。</li>
-                    <li>4. 或者嘗試輸入 99999 或 00000 往往可以順利通過驗證。</li>
-                </ul>
-            </div>
-            {data.gasStations.map(gs => (
-                <div key={gs.id} className="bg-white p-4 rounded-2xl card-shadow border border-milk-tea-50 flex justify-between items-center transition-all group">
-                    <div className="flex-1 min-w-0 pr-3">
-                        <div className="flex items-center gap-2 mb-1">
-                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded text-white ${gs.isCostco ? 'bg-red-500 shadow-red-100' : 'bg-blue-500 shadow-blue-100'} shadow-sm`}>{gs.isCostco ? 'COSTCO' : 'GAS'}</span>
-                            <h4 className="font-bold text-milk-tea-800 text-sm truncate">{gs.name}</h4>
-                        </div>
-                        <p className="text-[10px] text-milk-tea-400 truncate font-bold">{gs.description}</p>
-                    </div>
-                    <button onClick={() => openInGoogleMaps(gs.address)} className="w-10 h-10 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center active:scale-90 transition-all shadow-sm"><i className="fa-solid fa-location-arrow text-sm"></i></button>
                 </div>
             ))}
         </div>
