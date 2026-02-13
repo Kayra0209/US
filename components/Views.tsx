@@ -197,7 +197,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
             ? currentDay.events.map(e => e.id === editingEvent.id ? newEvent : e)
             : [...currentDay.events, newEvent];
         
-        // 依照 order 排序而非時間，除非是手動新增且尚未排序過
         const sortedEvents = updatedEvents.sort((a, b) => (a.order || 0) - (b.order || 0));
         
         const updatedItinerary = data.itinerary.map((d, i) => i === selectedDayIndex ? { ...d, events: sortedEvents, updatedAt: Date.now() } : d);
@@ -214,31 +213,12 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
         setIsEventModalOpen(false);
     };
 
-    // --- Drag and Drop Handlers ---
-    const onDragStart = (e: React.DragEvent, index: number) => {
-        setDraggedIndex(index);
-        e.dataTransfer.effectAllowed = 'move';
-        // 手機端可能需要一些回饋
-        const target = e.target as HTMLElement;
-        target.classList.add('opacity-40');
-    };
-
-    const onDragOver = (e: React.DragEvent, index: number) => {
-        e.preventDefault();
-    };
-
-    const onDrop = (e: React.DragEvent, dropIndex: number) => {
-        e.preventDefault();
-        if (draggedIndex === null || draggedIndex === dropIndex) {
-            setDraggedIndex(null);
-            return;
-        }
-
+    const reorderEvents = (fromIdx: number, toIdx: number) => {
+        if (fromIdx === toIdx) return;
         const newEvents = [...currentDay.events];
-        const [movedItem] = newEvents.splice(draggedIndex, 1);
-        newEvents.splice(dropIndex, 0, movedItem);
+        const [movedItem] = newEvents.splice(fromIdx, 1);
+        newEvents.splice(toIdx, 0, movedItem);
 
-        // 重新分配 order 並更新 updatedAt
         const finalEvents = newEvents.map((ev, idx) => ({
             ...ev,
             order: idx,
@@ -251,12 +231,42 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
         
         setData({ ...data, itinerary: updatedItinerary });
         saveData({ ...data, itinerary: updatedItinerary });
+    };
+
+    const onDragStart = (e: React.DragEvent, index: number) => {
+        setDraggedIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    const onDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+    };
+
+    const onDrop = (e: React.DragEvent, dropIndex: number) => {
+        e.preventDefault();
+        if (draggedIndex !== null) reorderEvents(draggedIndex, dropIndex);
         setDraggedIndex(null);
     };
 
-    const onDragEnd = (e: React.DragEvent) => {
-        const target = e.target as HTMLElement;
-        target.classList.remove('opacity-40');
+    const onTouchStart = (e: React.TouchEvent, index: number) => {
+        setDraggedIndex(index);
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        if (draggedIndex === null) return;
+        const touch = e.touches[0];
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+        const card = element?.closest('[data-index]');
+        if (card) {
+            const targetIndex = parseInt(card.getAttribute('data-index') || '-1');
+            if (targetIndex !== -1 && targetIndex !== draggedIndex) {
+                reorderEvents(draggedIndex, targetIndex);
+                setDraggedIndex(targetIndex);
+            }
+        }
+    };
+
+    const onTouchEnd = () => {
         setDraggedIndex(null);
     };
 
@@ -274,22 +284,28 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                         <div><span className="px-2 py-0.5 bg-milk-tea-600 text-white text-[9px] font-bold rounded mb-1 inline-block uppercase">{currentDay.theme}</span><h2 className="text-2xl font-black text-milk-tea-900 leading-none">{currentDay.date}</h2><p className="text-[10px] text-milk-tea-500 font-bold mt-1">{currentDay.calendarDate} · {currentDay.mainLocation}</p></div>
                         <div className="flex flex-col items-end gap-2"><WeatherWidget lat={currentDay.lat} lon={currentDay.lon} /><button onClick={() => openDailyRoute(currentDay)} className="text-[10px] font-black text-white bg-blue-600 px-3 py-1.5 rounded-xl">地圖導航</button></div>
                     </div>
-                    <div className="pl-3 border-l-2 border-milk-tea-200 space-y-4 ml-1">
+                    <div 
+                        className="pl-3 border-l-2 border-milk-tea-200 space-y-4 ml-1 select-none"
+                        onTouchMove={onTouchMove}
+                        onTouchEnd={onTouchEnd}
+                    >
                         {currentDay.events.map((event, index) => (
                             <div 
                                 key={event.id} 
+                                data-index={index}
                                 draggable 
                                 onDragStart={(e) => onDragStart(e, index)}
                                 onDragOver={(e) => onDragOver(e, index)}
                                 onDrop={(e) => onDrop(e, index)}
-                                onDragEnd={onDragEnd}
-                                className={`relative bg-white p-4 rounded-2xl border border-milk-tea-50 shadow-sm active:bg-milk-tea-50 transition-all flex items-start gap-3 ${draggedIndex === index ? 'opacity-20 scale-95' : ''}`}
+                                onDragEnd={() => setDraggedIndex(null)}
+                                className={`relative bg-white p-4 rounded-2xl border border-milk-tea-50 shadow-sm active:bg-milk-tea-50 transition-all flex items-start gap-3 ${draggedIndex === index ? 'opacity-40 scale-[0.98] border-milk-tea-300 shadow-inner' : ''}`}
                             >
-                                {/* Drag Handle */}
-                                <div className="mt-1 text-milk-tea-200 cursor-grab active:cursor-grabbing px-1">
+                                <div 
+                                    className="mt-1 text-milk-tea-200 cursor-grab active:cursor-grabbing px-1 touch-none"
+                                    onTouchStart={(e) => onTouchStart(e, index)}
+                                >
                                     <i className="fa-solid fa-grip-vertical text-sm"></i>
                                 </div>
-
                                 <div className="flex-1">
                                     <div className={`absolute -left-[30px] top-5 w-2.5 h-2.5 rounded-full border-2 border-white ${getCategoryColor(event.type)}`}></div>
                                     <div className="flex justify-between items-start mb-1">
@@ -311,7 +327,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                     </div>
                 </>
             ) : <div className="text-center py-20 text-milk-tea-300 font-bold">新增您的第一天行程</div>}
-
             {isDayModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
                     <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in">
@@ -324,7 +339,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                     </div>
                 </div>
             )}
-
             {isEventModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm p-4">
                     <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 overflow-y-auto max-h-[90vh] space-y-4 shadow-2xl animate-in">
@@ -339,7 +353,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                             <input value={eventForm.title} onChange={e => setEventForm({...eventForm, title: e.target.value})} className="col-span-3 p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none" placeholder="項目名稱" />
                         </div>
                         <input value={eventForm.location} onChange={e => setEventForm({...eventForm, location: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none" placeholder="地點 / 地址" />
-                        
                         <textarea rows={2} value={eventForm.note} onChange={e => setEventForm({...eventForm, note: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none resize-none" placeholder="備註..." />
                         <div className="flex gap-3 pt-2">
                             {editingEvent && <button onClick={() => handleDeleteEvent(editingEvent.id)} className="flex-1 py-4 bg-red-50 text-red-500 rounded-2xl text-sm font-black active:scale-95 transition-all">刪除</button>}
@@ -354,7 +367,7 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
 
 // --- Survival Guide View ---
 export const SurvivalGuideView: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'driving' | 'tipping' | 'clothing'>('tipping');
+    const [activeTab, setActiveTab] = useState<'driving' | 'tipping' | 'clothing'>('driving');
     const [bill, setBill] = useState('');
     const [serviceLevel, setServiceLevel] = useState<'average' | 'good' | 'excellent' | 'custom'>('good');
     const [customPct, setCustomPct] = useState('18');
@@ -374,14 +387,64 @@ export const SurvivalGuideView: React.FC = () => {
 
     return (
         <div className="space-y-4 pb-24 animate-in">
-            <div className="flex bg-white p-1 rounded-2xl border border-milk-tea-100 mx-auto max-w-[320px] shadow-sm">
+            <div className="flex bg-white p-1 rounded-2xl border border-milk-tea-100 mx-auto max-w-[320px] shadow-sm mb-4">
                 {(['driving', 'tipping', 'clothing'] as const).map(t => (
                     <button key={t} onClick={() => setActiveTab(t)} className={`flex-1 py-2 text-[10px] font-black rounded-xl transition-all ${activeTab === t ? 'bg-milk-tea-800 text-white shadow-md' : 'text-milk-tea-300'}`}>
-                        {t === 'driving' ? '🚗 自駕' : t === 'tipping' ? '💵 小費' : '🧥 穿衣'}
+                        {t === 'driving' ? '🚗 交通規則' : t === 'tipping' ? '💵 小費指南' : '🧥 穿衣指南'}
                     </button>
                 ))}
             </div>
-            {activeTab === 'tipping' ? (
+
+            {activeTab === 'driving' && (
+                <div className="space-y-4">
+                    <div className="bg-white p-6 rounded-[32px] border border-milk-tea-100 shadow-sm space-y-4">
+                        <h4 className="text-sm font-black text-milk-tea-800 border-b pb-2">美國自駕 5 大必知規則</h4>
+                        <div className="space-y-4">
+                            <div className="flex gap-3">
+                                <span className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-black flex-none">1</span>
+                                <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">
+                                    <strong className="text-milk-tea-900">4-Way Stop：</strong>先停者先走！若同時到達，右手邊車輛先行。一定要完全停止 (Full Stop)。
+                                </p>
+                            </div>
+                            <div className="flex gap-3">
+                                <span className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-black flex-none">2</span>
+                                <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">
+                                    <strong className="text-milk-tea-900">紅燈右轉：</strong>大部份地區可紅燈右轉，但必須先完全停止、確認無來車與行人。除非有「No Turn On Red」標誌。
+                                </p>
+                            </div>
+                            <div className="flex gap-3">
+                                <span className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-black flex-none">3</span>
+                                <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">
+                                    <strong className="text-milk-tea-900">行人最大：</strong>只要行人腳踏入斑馬線，不論紅綠燈，車輛必須停車禮讓。
+                                </p>
+                            </div>
+                            <div className="flex gap-3">
+                                <span className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-black flex-none">4</span>
+                                <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">
+                                    <strong className="text-milk-tea-900">HOV/Carpool：</strong>最內側通常是高乘載車道，需 2 人以上方可進入。雙白線處不可跨越。
+                                </p>
+                            </div>
+                            <div className="flex gap-3">
+                                <span className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-[10px] font-black flex-none">5</span>
+                                <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">
+                                    <strong className="text-milk-tea-900">校車警示：</strong>校車閃紅燈並伸出 STOP 牌時，雙向車輛（除非有分隔島）都必須停車，違規罰金極重。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-amber-50 p-6 rounded-[32px] border border-amber-100 space-y-3">
+                        <h4 className="text-[10px] font-black text-amber-800 uppercase tracking-widest">路邊停車顏色標誌</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="p-2 bg-white rounded-xl border border-amber-100"><span className="text-[10px] font-black text-red-500 block">🔴 紅色</span><span className="text-[9px] font-bold text-milk-tea-400 italic">絕對禁止停車</span></div>
+                            <div className="p-2 bg-white rounded-xl border border-amber-100"><span className="text-[10px] font-black text-blue-500 block">🔵 藍色</span><span className="text-[9px] font-bold text-milk-tea-400 italic">僅限殘障人士</span></div>
+                            <div className="p-2 bg-white rounded-xl border border-amber-100"><span className="text-[10px] font-black text-green-500 block">🟢 綠色</span><span className="text-[9px] font-bold text-milk-tea-400 italic">短暫限時停車</span></div>
+                            <div className="p-2 bg-white rounded-xl border border-amber-100"><span className="text-[10px] font-black text-gray-400 block">⚪ 白色</span><span className="text-[9px] font-bold text-milk-tea-400 italic">僅限上下客</span></div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'tipping' && (
                 <div className="space-y-4">
                     <div className="bg-milk-tea-800 p-6 rounded-3xl text-white shadow-xl relative overflow-hidden">
                         <h3 className="text-xs font-black opacity-80 mb-4 tracking-widest uppercase">小費速算 (USD)</h3>
@@ -403,8 +466,40 @@ export const SurvivalGuideView: React.FC = () => {
                             </div>
                         )}
                     </div>
+                    <div className="bg-white p-6 rounded-[32px] border border-milk-tea-100 shadow-sm space-y-3">
+                        <h4 className="text-sm font-black text-milk-tea-800">常見場景參考</h4>
+                        <ul className="space-y-2">
+                            <li className="flex justify-between items-center text-[11px] font-bold text-milk-tea-600"><span>坐下點餐餐廳 (午餐)</span><span className="text-milk-tea-900">15-18%</span></li>
+                            <li className="flex justify-between items-center text-[11px] font-bold text-milk-tea-600"><span>坐下點餐餐廳 (晚餐)</span><span className="text-milk-tea-900">18-22%</span></li>
+                            <li className="flex justify-between items-center text-[11px] font-bold text-milk-tea-600"><span>外帶 / 咖啡廳</span><span className="text-milk-tea-400">Optional / $1-2</span></li>
+                            <li className="flex justify-between items-center text-[11px] font-bold text-milk-tea-600"><span>飯店房務清潔</span><span className="text-milk-tea-900">$2-5 / 每日</span></li>
+                            <li className="flex justify-between items-center text-[11px] font-bold text-milk-tea-600"><span>代客泊車 (Valet)</span><span className="text-milk-tea-900">$5</span></li>
+                        </ul>
+                    </div>
                 </div>
-            ) : null}
+            )}
+
+            {activeTab === 'clothing' && (
+                <div className="space-y-4">
+                    <div className="bg-white p-6 rounded-[32px] border border-milk-tea-100 shadow-sm space-y-4">
+                        <h4 className="text-sm font-black text-milk-tea-800">美西氣候與穿衣策略</h4>
+                        <div className="space-y-4">
+                            <div className="bg-milk-tea-50 p-4 rounded-2xl">
+                                <span className="text-[10px] font-black text-milk-tea-800 block mb-1">🧅 洋蔥式穿法 (必備)</span>
+                                <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">美西溫差極大（特別是沙漠與國家公園區域），清晨 5°C、中午 25°C 是常態。建議：內層透氣、中層保暖、外層防風。</p>
+                            </div>
+                            <div className="bg-milk-tea-50 p-4 rounded-2xl">
+                                <span className="text-[10px] font-black text-milk-tea-800 block mb-1">🌵 乾燥預防</span>
+                                <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">美西空氣極度乾燥，容易導致流鼻血或嘴唇龜裂。隨身必備：護唇膏、保濕乳液、人工淚液。</p>
+                            </div>
+                            <div className="bg-milk-tea-50 p-4 rounded-2xl">
+                                <span className="text-[10px] font-black text-milk-tea-800 block mb-1">👟 國家公園鞋襪</span>
+                                <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">許多步道是紅土或碎石路，建議穿著抓地力好的運動鞋或輕量登山鞋。白鞋非常容易變髒紅。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -513,7 +608,7 @@ export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }
     );
 };
 
-// --- Spots View (收藏頁面) ---
+// --- Spots View ---
 export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [integratingSpot, setIntegratingSpot] = useState<Spot | null>(null);
@@ -552,13 +647,7 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
 
     const handleAddToItinerary = (dayIndex: number) => {
         if (!integratingSpot) return;
-        
-        const spotTypeToEventType: Record<SpotCategory, EventType> = {
-            food: 'food',
-            sightseeing: 'sightseeing',
-            shopping: 'shopping'
-        };
-
+        const spotTypeToEventType: Record<SpotCategory, EventType> = { food: 'food', sightseeing: 'sightseeing', shopping: 'shopping' };
         const newEvent: TripEvent = {
             id: Date.now().toString(),
             time: '12:00',
@@ -569,7 +658,6 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
             order: data.itinerary[dayIndex].events.length,
             updatedAt: Date.now()
         };
-
         const updatedItinerary = data.itinerary.map((day, idx) => {
             if (idx === dayIndex) {
                 const newEvents = [...day.events, newEvent].sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -577,7 +665,6 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
             }
             return day;
         });
-
         const nextData = { ...data, itinerary: updatedItinerary };
         setData(nextData);
         saveData(nextData);
@@ -606,164 +693,54 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
                     <h2 className="text-xl font-black text-milk-tea-800">口袋收藏</h2>
                     <p className="text-[10px] font-bold text-milk-tea-400 uppercase tracking-widest">Saved Spots</p>
                 </div>
-                <button 
-                    onClick={() => setIsModalOpen(true)}
-                    className="w-10 h-10 bg-milk-tea-800 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all"
-                >
-                    <i className="fa-solid fa-plus"></i>
-                </button>
+                <button onClick={() => setIsModalOpen(true)} className="w-10 h-10 bg-milk-tea-800 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all"><i className="fa-solid fa-plus"></i></button>
             </div>
-
-            {/* 篩選標籤 */}
             <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                 {(['all', 'food', 'sightseeing', 'shopping'] as const).map(f => (
-                    <button 
-                        key={f} 
-                        onClick={() => setFilter(f)}
-                        className={`flex-none px-4 py-2 rounded-xl text-[10px] font-black border transition-all ${filter === f ? 'bg-milk-tea-800 text-white border-transparent shadow-md' : 'bg-white text-milk-tea-300 border-milk-tea-100'}`}
-                    >
-                        {f === 'all' ? '全部' : getSpotCategoryLabel(f as SpotCategory)}
-                    </button>
+                    <button key={f} onClick={() => setFilter(f)} className={`flex-none px-4 py-2 rounded-xl text-[10px] font-black border transition-all ${filter === f ? 'bg-milk-tea-800 text-white border-transparent shadow-md' : 'bg-white text-milk-tea-300 border-milk-tea-100'}`}>{f === 'all' ? '全部' : getSpotCategoryLabel(f as SpotCategory)}</button>
                 ))}
             </div>
-
-            {/* 列表 */}
             <div className="grid gap-3">
                 {filteredSpots.length > 0 ? (
                     filteredSpots.map(spot => (
                         <div key={spot.id} className="bg-white p-4 rounded-3xl border border-milk-tea-50 shadow-sm space-y-3">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${getSpotCategoryColor(spot.category)}`}>
-                                        {getSpotCategoryLabel(spot.category)}
-                                    </span>
+                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase ${getSpotCategoryColor(spot.category)}`}>{getSpotCategoryLabel(spot.category)}</span>
                                     <h3 className="text-base font-black text-milk-tea-900 mt-1">{spot.name}</h3>
                                     {spot.city && <p className="text-[10px] text-milk-tea-400 font-bold"><i className="fa-solid fa-city mr-1"></i>{spot.city}</p>}
                                 </div>
                                 <div className="flex gap-2">
-                                    <button 
-                                        onClick={() => setIntegratingSpot(spot)}
-                                        className="w-8 h-8 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center active:scale-90"
-                                        title="加入行程"
-                                    >
-                                        <i className="fa-solid fa-calendar-plus text-[11px]"></i>
-                                    </button>
-                                    <button 
-                                        onClick={() => openInGoogleMaps(spot.location || spot.name)}
-                                        className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center active:scale-90"
-                                    >
-                                        <i className="fa-solid fa-compass text-[11px]"></i>
-                                    </button>
-                                    <button 
-                                        onClick={() => handleDelete(spot.id)}
-                                        className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center active:scale-90"
-                                    >
-                                        <i className="fa-solid fa-trash-can text-[10px]"></i>
-                                    </button>
+                                    <button onClick={() => setIntegratingSpot(spot)} className="w-8 h-8 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center active:scale-90" title="加入行程"><i className="fa-solid fa-calendar-plus text-[11px]"></i></button>
+                                    <button onClick={() => openInGoogleMaps(spot.location || spot.name)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center active:scale-90"><i className="fa-solid fa-compass text-[11px]"></i></button>
+                                    <button onClick={() => handleDelete(spot.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center active:scale-90"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
                                 </div>
                             </div>
                             {spot.note && <p className="text-[10px] text-milk-tea-500 italic bg-milk-tea-50/50 p-2 rounded-xl">"{spot.note}"</p>}
                         </div>
                     ))
-                ) : (
-                    <div className="text-center py-20">
-                        <i className="fa-solid fa-heart text-milk-tea-100 text-5xl mb-4"></i>
-                        <p className="text-xs font-bold text-milk-tea-300 uppercase tracking-widest">還沒有收藏項目</p>
-                    </div>
-                )}
+                ) : <div className="text-center py-20"><i className="fa-solid fa-heart text-milk-tea-100 text-5xl mb-4"></i><p className="text-xs font-bold text-milk-tea-300 uppercase tracking-widest">還沒有收藏項目</p></div>}
             </div>
-
-            {/* 新增視窗 */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm p-4">
                     <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[90vh]">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-black text-milk-tea-900">新增收藏</h3>
-                            <button onClick={() => setIsModalOpen(false)}><i className="fa-solid fa-xmark"></i></button>
-                        </div>
-                        
-                        <div className="flex gap-2 pb-1">
-                            {(['food', 'sightseeing', 'shopping'] as SpotCategory[]).map(cat => (
-                                <button 
-                                    key={cat} 
-                                    onClick={() => setForm({...form, category: cat})}
-                                    className={`flex-1 py-3 rounded-xl text-[10px] font-black border transition-all ${form.category === cat ? 'bg-milk-tea-800 text-white border-transparent' : 'bg-milk-tea-50 text-milk-tea-400 border-milk-tea-100'}`}
-                                >
-                                    {getSpotCategoryLabel(cat)}
-                                </button>
-                            ))}
-                        </div>
-
+                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">新增收藏</h3><button onClick={() => setIsModalOpen(false)}><i className="fa-solid fa-xmark"></i></button></div>
+                        <div className="flex gap-2 pb-1">{(['food', 'sightseeing', 'shopping'] as SpotCategory[]).map(cat => (<button key={cat} onClick={() => setForm({...form, category: cat})} className={`flex-1 py-3 rounded-xl text-[10px] font-black border transition-all ${form.category === cat ? 'bg-milk-tea-800 text-white border-transparent' : 'bg-milk-tea-50 text-milk-tea-400 border-milk-tea-100'}`}>{getSpotCategoryLabel(cat)}</button>))}</div>
                         <div className="space-y-3">
-                            <input 
-                                value={form.name} 
-                                onChange={e => setForm({...form, name: e.target.value})} 
-                                className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-milk-tea-100" 
-                                placeholder="店名 / 景點名稱" 
-                            />
-                            <input 
-                                value={form.city} 
-                                onChange={e => setForm({...form, city: e.target.value})} 
-                                className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-milk-tea-100" 
-                                placeholder="城市 (例如: Los Angeles)" 
-                            />
-                            <input 
-                                value={form.location} 
-                                onChange={e => setForm({...form, location: e.target.value})} 
-                                className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none border border-milk-tea-100" 
-                                placeholder="詳細地址 (用於導航)" 
-                            />
-                            <textarea 
-                                value={form.note} 
-                                onChange={e => setForm({...form, note: e.target.value})} 
-                                rows={2}
-                                className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none border border-milk-tea-100 resize-none" 
-                                placeholder="備註 (想吃什麼、幾點開...)" 
-                            />
+                            <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-milk-tea-100" placeholder="店名 / 景點名稱" />
+                            <input value={form.city} onChange={e => setForm({...form, city: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-milk-tea-100" placeholder="城市 (例如: Los Angeles)" />
+                            <input value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none border border-milk-tea-100" placeholder="詳細地址 (用於導航)" />
+                            <textarea value={form.note} onChange={e => setForm({...form, note: e.target.value})} rows={2} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none border border-milk-tea-100 resize-none" placeholder="備註 (想吃什麼、幾點開...)" />
                         </div>
-
-                        <button 
-                            onClick={handleSave}
-                            disabled={!form.name}
-                            className={`w-full py-4 rounded-2xl text-sm font-black shadow-lg transition-all active:scale-95 ${!form.name ? 'bg-milk-tea-100 text-milk-tea-300 cursor-not-allowed' : 'bg-milk-tea-800 text-white'}`}
-                        >
-                            儲存到口袋名單
-                        </button>
+                        <button onClick={handleSave} disabled={!form.name} className={`w-full py-4 rounded-2xl text-sm font-black shadow-lg transition-all active:scale-95 ${!form.name ? 'bg-milk-tea-100 text-milk-tea-300 cursor-not-allowed' : 'bg-milk-tea-800 text-white'}`}>儲存到口袋名單</button>
                     </div>
                 </div>
             )}
-
-            {/* 整合至行程視窗 */}
             {integratingSpot && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[110] flex items-end justify-center backdrop-blur-sm p-4">
                     <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[70vh]">
-                        <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4">
-                            <div>
-                                <h3 className="text-lg font-black text-milk-tea-900">加入行程</h3>
-                                <p className="text-[10px] font-bold text-milk-tea-400">將「${integratingSpot.name}」分配至哪一天？</p>
-                            </div>
-                            <button onClick={() => setIntegratingSpot(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 gap-2">
-                            {data.itinerary.length > 0 ? (
-                                data.itinerary.map((day, idx) => (
-                                    <button 
-                                        key={day.id} 
-                                        onClick={() => handleAddToItinerary(idx)}
-                                        className="w-full p-4 bg-milk-tea-50 hover:bg-milk-tea-100 rounded-2xl flex justify-between items-center transition-all group"
-                                    >
-                                        <div className="text-left">
-                                            <span className="text-[10px] font-black text-milk-tea-800 uppercase block">{day.date}</span>
-                                            <span className="text-xs font-bold text-milk-tea-400">{day.theme}</span>
-                                        </div>
-                                        <i className="fa-solid fa-chevron-right text-milk-tea-200 group-hover:text-milk-tea-500 transition-colors"></i>
-                                    </button>
-                                ))
-                            ) : (
-                                <p className="text-center text-xs font-bold text-milk-tea-400 py-10">請先在「行程」頁面建立天數</p>
-                            )}
-                        </div>
+                        <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4"><div><h3 className="text-lg font-black text-milk-tea-900">加入行程</h3><p className="text-[10px] font-bold text-milk-tea-400">將「{integratingSpot.name}」分配至哪一天？</p></div><button onClick={() => setIntegratingSpot(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
+                        <div className="grid grid-cols-1 gap-2">{data.itinerary.map((day, idx) => (<button key={day.id} onClick={() => handleAddToItinerary(idx)} className="w-full p-4 bg-milk-tea-50 hover:bg-milk-tea-100 rounded-2xl flex justify-between items-center transition-all group"><div className="text-left"><span className="text-[10px] font-black text-milk-tea-800 uppercase block">{day.date}</span><span className="text-xs font-bold text-milk-tea-400">{day.theme}</span></div><i className="fa-solid fa-chevron-right text-milk-tea-200 group-hover:text-milk-tea-500 transition-colors"></i></button>))}</div>
                     </div>
                 </div>
             )}
@@ -771,32 +748,140 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
     );
 };
 
+// --- Gas View (加油秘笈) ---
 export const GasView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [integratingStation, setIntegratingStation] = useState<GasStation | null>(null);
+    const [form, setForm] = useState<Partial<GasStation>>({ name: '', address: '', description: '', isCostco: false });
+
+    const handleSave = () => {
+        if (!form.name || !form.address) return;
+        const newStation: GasStation = {
+            id: Date.now().toString(),
+            name: form.name!,
+            address: form.address!,
+            description: form.description || '',
+            isCostco: !!form.isCostco,
+            updatedAt: Date.now()
+        };
+        const nextData = { ...data, gasStations: [newStation, ...data.gasStations] };
+        setData(nextData);
+        saveData(nextData);
+        setIsModalOpen(false);
+        setForm({ name: '', address: '', description: '', isCostco: false });
+    };
+
+    const handleDelete = (id: string) => {
+        if (!confirm("確定要刪除這個油站嗎？")) return;
+        const nextData = { ...data, gasStations: data.gasStations.filter(s => s.id !== id) };
+        setData(nextData);
+        saveData(nextData);
+    };
+
+    const handleAddToItinerary = (dayIndex: number) => {
+        if (!integratingStation) return;
+        
+        const newEvent: TripEvent = {
+            id: Date.now().toString(),
+            time: '12:00',
+            title: `加油: ${integratingStation.name}`,
+            type: 'transport',
+            location: integratingStation.address,
+            note: integratingStation.description || '',
+            order: data.itinerary[dayIndex].events.length,
+            updatedAt: Date.now()
+        };
+
+        const updatedItinerary = data.itinerary.map((day, idx) => {
+            if (idx === dayIndex) {
+                const newEvents = [...day.events, newEvent].sort((a, b) => (a.order || 0) - (b.order || 0));
+                return { ...day, events: newEvents, updatedAt: Date.now() };
+            }
+            return day;
+        });
+
+        const nextData = { ...data, itinerary: updatedItinerary };
+        setData(nextData);
+        saveData(nextData);
+        setIntegratingStation(null);
+        alert(`已成功將油站「${integratingStation.name}」加入行程！`);
+    };
+
     return (
         <div className="space-y-4 pb-24 animate-in">
-             <div className="px-2">
-                <h2 className="text-xl font-black text-milk-tea-800">加油秘笈</h2>
-                <p className="text-[10px] font-bold text-milk-tea-400 uppercase tracking-widest">Gas Station Guide</p>
+             <div className="flex justify-between items-center px-2">
+                <div>
+                    <h2 className="text-xl font-black text-milk-tea-800">加油秘笈</h2>
+                    <p className="text-[10px] font-bold text-milk-tea-400 uppercase tracking-widest">Gas Station Guide</p>
+                </div>
+                <button onClick={() => setIsModalOpen(true)} className="w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all">
+                    <i className="fa-solid fa-plus"></i>
+                </button>
             </div>
+            
+            <div className="bg-white p-6 rounded-[32px] border border-milk-tea-100 shadow-sm space-y-4">
+                <h4 className="text-sm font-black text-milk-tea-800 border-b pb-2">加油必讀知識</h4>
+                <div className="space-y-4">
+                    <div className="bg-milk-tea-50 p-4 rounded-2xl">
+                        <span className="text-[10px] font-black text-milk-tea-800 block mb-1">💳 信用卡 ZIP Code 問題</span>
+                        <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">刷卡機常要求輸入 ZIP Code。台灣卡可嘗試輸入「99999」或「00000」，若不行，請進櫃檯說：<code className="bg-milk-tea-100 px-1 rounded font-mono">Pump X, Prepay $50</code>。</p>
+                    </div>
+                    <div className="bg-milk-tea-50 p-4 rounded-2xl">
+                        <span className="text-[10px] font-black text-milk-tea-800 block mb-1">⛽ 選擇油品 (Octane)</span>
+                        <p className="text-[11px] font-bold text-milk-tea-600 leading-relaxed">租車加最便宜的 <strong className="text-milk-tea-900">Regular (87)</strong> 即可。綠色通常是柴油 (Diesel)，別加錯！</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="space-y-3">
+                <h4 className="text-[10px] font-black text-milk-tea-400 uppercase tracking-widest px-2 mt-4">精選戰略與自定義油站</h4>
                 {data.gasStations.map(station => (
                     <div key={station.id} className="bg-white p-4 rounded-3xl border border-milk-tea-50 shadow-sm">
                         <div className="flex justify-between items-start">
                             <div>
                                 <span className={`text-[8px] font-black px-2 py-0.5 rounded-full uppercase ${station.isCostco ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
-                                    {station.isCostco ? 'Costco 必加' : '一般油站'}
+                                    {station.isCostco ? 'Costco 必加' : '補給點'}
                                 </span>
                                 <h3 className="text-sm font-black text-milk-tea-900 mt-1">{station.name}</h3>
                             </div>
-                            <button onClick={() => openInGoogleMaps(station.address)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center">
-                                <i className="fa-solid fa-compass text-[11px]"></i>
-                            </button>
+                            <div className="flex gap-2">
+                                <button onClick={() => setIntegratingStation(station)} className="w-8 h-8 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center active:scale-90" title="加到行程"><i className="fa-solid fa-calendar-plus text-[11px]"></i></button>
+                                <button onClick={() => openInGoogleMaps(station.address)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center"><i className="fa-solid fa-compass text-[11px]"></i></button>
+                                <button onClick={() => handleDelete(station.id)} className="w-8 h-8 bg-red-50 text-red-300 rounded-full flex items-center justify-center"><i className="fa-solid fa-trash-can text-[10px]"></i></button>
+                            </div>
                         </div>
                         <p className="text-[9px] text-milk-tea-400 mt-1 font-bold">{station.address}</p>
-                        <p className="text-[9px] text-milk-tea-500 mt-2 bg-milk-tea-50/50 p-2 rounded-xl italic">"{station.description}"</p>
+                        {station.description && <p className="text-[9px] text-milk-tea-500 mt-2 bg-milk-tea-50/50 p-2 rounded-xl italic">"{station.description}"</p>}
                     </div>
                 ))}
             </div>
+
+            {/* 新增油站視窗 */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm p-4">
+                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[90vh]">
+                        <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">新增油站</h3><button onClick={() => setIsModalOpen(false)}><i className="fa-solid fa-xmark"></i></button></div>
+                        <div className="flex gap-2">
+                             <button onClick={() => setForm({...form, isCostco: false})} className={`flex-1 py-3 rounded-xl text-[10px] font-black border transition-all ${!form.isCostco ? 'bg-milk-tea-800 text-white' : 'bg-milk-tea-50 text-milk-tea-400'}`}>一般油站</button>
+                             <button onClick={() => setForm({...form, isCostco: true})} className={`flex-1 py-3 rounded-xl text-[10px] font-black border transition-all ${form.isCostco ? 'bg-red-600 text-white' : 'bg-milk-tea-50 text-milk-tea-400'}`}>Costco</button>
+                        </div>
+                        <input value={form.name} onChange={e => setForm({...form, name: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-milk-tea-100" placeholder="加油站名稱 (例如: Shell Las Vegas)" />
+                        <input value={form.address} onChange={e => setForm({...form, address: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none border border-milk-tea-100" placeholder="詳細地址" />
+                        <textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows={2} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none border border-milk-tea-100 resize-none" placeholder="備註 (例如: 趕路重要補給點)" />
+                        <button onClick={handleSave} disabled={!form.name || !form.address} className={`w-full py-4 rounded-2xl text-sm font-black shadow-lg transition-all active:scale-95 ${(!form.name || !form.address) ? 'bg-milk-tea-100 text-milk-tea-300 cursor-not-allowed' : 'bg-milk-tea-800 text-white'}`}>儲存油站</button>
+                    </div>
+                </div>
+            )}
+
+            {/* 整合至行程視窗 */}
+            {integratingStation && (
+                <div className="fixed inset-0 bg-milk-tea-900/60 z-[110] flex items-end justify-center backdrop-blur-sm p-4">
+                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[70vh]">
+                        <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4"><div><h3 className="text-lg font-black text-milk-tea-900">加入行程</h3><p className="text-[10px] font-bold text-milk-tea-400">將「{integratingStation.name}」加入哪一天？</p></div><button onClick={() => setIntegratingStation(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
+                        <div className="grid grid-cols-1 gap-2">{data.itinerary.map((day, idx) => (<button key={day.id} onClick={() => handleAddToItinerary(idx)} className="w-full p-4 bg-milk-tea-50 hover:bg-milk-tea-100 rounded-2xl flex justify-between items-center transition-all group"><div className="text-left"><span className="text-[10px] font-black text-milk-tea-800 uppercase block">{day.date}</span><span className="text-xs font-bold text-milk-tea-400">{day.theme}</span></div><i className="fa-solid fa-chevron-right text-milk-tea-200 group-hover:text-milk-tea-500 transition-colors"></i></button>))}</div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -827,9 +912,7 @@ export const MapView: React.FC<{ data: AppData; selectedDayIndex: number }> = ({
                             開始導航 ({currentDay.events.length} 個停靠點)
                         </button>
                     </>
-                ) : (
-                    <p className="text-xs font-bold text-milk-tea-300">請先到行程頁面選擇日期</p>
-                )}
+                ) : <p className="text-xs font-bold text-milk-tea-300">請先到行程頁面選擇日期</p>}
             </div>
 
             <div className="bg-milk-tea-100/50 p-6 rounded-[32px] border border-milk-tea-100 space-y-3">
