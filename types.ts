@@ -1,3 +1,4 @@
+
 export type ViewType = 'dashboard' | 'itinerary' | 'map' | 'money' | 'spots' | 'todo' | 'settings' | 'gas' | 'guide';
 
 export type Currency = 'USD' | 'TWD';
@@ -29,6 +30,8 @@ export interface TripEvent {
     type: EventType;
     location: string;
     note: string;
+    photo?: string; // 支援 Base64 憑證
+    updatedAt: number;
     url?: string;
     bookingInfo?: string;
     cost?: number;
@@ -38,6 +41,7 @@ export interface TripEvent {
 }
 
 export interface ItineraryDay {
+    id: string;
     date: string;
     calendarDate?: string;
     theme: string;
@@ -45,6 +49,7 @@ export interface ItineraryDay {
     lat: number;
     lon: number;
     events: TripEvent[];
+    updatedAt: number;
 }
 
 export interface Expense {
@@ -56,6 +61,7 @@ export interface Expense {
     isShared: boolean;
     date: string;
     type: ExpenseType;
+    updatedAt: number;
 }
 
 export interface Spot {
@@ -65,6 +71,7 @@ export interface Spot {
     city: string;
     location: string;
     note: string;
+    updatedAt: number;
 }
 
 export interface GasStation {
@@ -81,7 +88,8 @@ export interface Todo {
     done: boolean;
     category: 'general' | 'packing';
     daysBefore?: number; 
-    assignedDate?: string; 
+    assignedDate?: string;
+    updatedAt: number;
 }
 
 export interface AppSettings {
