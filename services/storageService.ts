@@ -3,7 +3,7 @@ import { AppSettings, Expense, ItineraryDay, Spot, Todo, GasStation, ChatMessage
 const STORAGE_KEY = 'us_trip_v4_react';
 
 export interface AppData {
-    tripName: string; // 新增行程名稱
+    tripName: string;
     itinerary: ItineraryDay[];
     expenses: Expense[];
     todos: Todo[];
@@ -15,10 +15,13 @@ export interface AppData {
 }
 
 const DEFAULT_GAS_STATIONS: GasStation[] = [
-    { id: 'gas-1', name: 'Costco Wholesale LAX', address: '14501 Hindry Ave, Hawthorne, CA 90250', description: 'LAX 機場附近，還車前加油首選。', isCostco: true },
-    { id: 'gas-2', name: 'Costco Wholesale SF', address: '450 10th St, San Francisco, CA 94103', description: '舊金山市中心稀有的 Costco。', isCostco: true },
-    { id: 'gas-3', name: 'Costco Wholesale Vegas', address: '6555 N Decatur Blvd, Las Vegas, NV 89131', description: '前往國家公園前的補給點。', isCostco: true },
-    { id: 'gas-4', name: 'Chevron Self Service', address: 'General US Location', description: '非 Costco 時的首選，油質穩定但較貴。', isCostco: false }
+    { id: 'gas-1', name: 'Costco Wholesale LAX', address: '14501 Hindry Ave, Hawthorne, CA 90250', description: 'LAX 機場附近，還車前最後補油首選。', isCostco: true },
+    { id: 'gas-2', name: 'Costco Wholesale SF', address: '450 10th St, San Francisco, CA 94103', description: '舊金山市中心稀有的 Costco，進城前可補。', isCostco: true },
+    { id: 'gas-3', name: 'Costco Wholesale Las Vegas', address: '6555 N Decatur Blvd, Las Vegas, NV 89131', description: '前往大峽谷/佩吉市前的超便宜油站。', isCostco: true },
+    { id: 'gas-4', name: 'Costco Wholesale San Diego', address: '4605 Morena Blvd, San Diego, CA 92117', description: '聖地牙哥市區補油點。', isCostco: true },
+    { id: 'gas-5', name: 'Chevron Kingman', address: '3325 Stockton Hill Rd, Kingman, AZ 86401', description: '66 號公路重要補給點。', isCostco: false },
+    { id: 'gas-6', name: 'Shell Page AZ', address: '644 Haul Rd, Page, AZ 86040', description: '羚羊峽谷與馬蹄灣區域的補給站。', isCostco: false },
+    { id: 'gas-7', name: '76 - Yosemite Gateway', address: '5010 CA-140, Mariposa, CA 95338', description: '進入優山美地前的油站。', isCostco: false }
 ];
 
 const DEFAULT_ITINERARY: ItineraryDay[] = [
@@ -61,8 +64,8 @@ export const loadData = (): AppData => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             const parsed = JSON.parse(stored);
-            // 確保舊資料升級時有預設名稱
             if (!parsed.tripName) parsed.tripName = '2026 美西之旅';
+            if (!parsed.gasStations || parsed.gasStations.length === 0) parsed.gasStations = DEFAULT_GAS_STATIONS;
             return parsed;
         }
     } catch (e) { console.error(e); }
