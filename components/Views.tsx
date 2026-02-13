@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppData, saveData } from '../services/storageService';
 import { TripEvent, ItineraryDay, Expense, Spot, Todo, EventType, PaymentMethod, SpotCategory, ExpenseType, GasStation, Currency, ViewType } from '../types';
@@ -581,6 +580,7 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
 // --- Todo View ---
 export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [newTodo, setNewTodo] = useState('');
+    const [daysBefore, setDaysBefore] = useState('');
     const [activeTab, setActiveTab] = useState<'general' | 'packing'>('general');
 
     const handleToggle = (id: string) => {
@@ -594,10 +594,12 @@ export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }
             id: Date.now().toString(), 
             text: newTodo, 
             done: false, 
-            category: activeTab, 
+            category: activeTab,
+            daysBefore: activeTab === 'general' && daysBefore ? parseInt(daysBefore) : undefined,
             updatedAt: Date.now() 
         } as Todo, ...data.todos] };
-        setData(next); saveData(next); setNewTodo('');
+        setData(next); saveData(next); 
+        setNewTodo(''); setDaysBefore('');
     };
 
     const handleDelete = (id: string) => {
@@ -625,29 +627,44 @@ export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }
                 ))}
             </div>
 
-            {/* 輸入框 */}
-            <div className="flex gap-2 bg-white p-3 rounded-2xl border border-milk-tea-50 shadow-sm">
-                <input 
-                    value={newTodo} 
-                    onChange={e => setNewTodo(e.target.value)} 
-                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                    placeholder={`新增${activeTab === 'general' ? '待辦' : '物品'}...`} 
-                    className="flex-1 p-2 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-milk-tea-100" 
-                />
-                <button onClick={handleAdd} className="bg-milk-tea-800 text-white px-4 rounded-xl active:scale-90 shadow-md transition-transform">
-                    <i className="fa-solid fa-plus"></i>
-                </button>
+            {/* 輸入框組件 */}
+            <div className="bg-white p-3 rounded-3xl border border-milk-tea-50 shadow-sm space-y-3">
+                <div className="flex gap-2">
+                    <input 
+                        value={newTodo} 
+                        onChange={e => setNewTodo(e.target.value)} 
+                        onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                        placeholder={activeTab === 'general' ? "新增待辦項目..." : "新增行李物品..."} 
+                        className="flex-1 p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none border border-milk-tea-100" 
+                    />
+                    <button onClick={handleAdd} className="bg-milk-tea-800 text-white px-5 rounded-xl active:scale-90 shadow-md transition-transform">
+                        <i className="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+                {activeTab === 'general' && (
+                    <div className="flex items-center gap-2 px-1">
+                        <span className="text-[10px] font-black text-milk-tea-400">設定倒數天數:</span>
+                        <input 
+                            type="number"
+                            value={daysBefore}
+                            onChange={e => setDaysBefore(e.target.value)}
+                            placeholder="例如: 30"
+                            className="w-20 p-2 bg-milk-tea-50 rounded-lg text-[10px] font-black outline-none border border-milk-tea-100"
+                        />
+                        <span className="text-[10px] font-black text-milk-tea-400">天前</span>
+                    </div>
+                )}
             </div>
 
-            {/* 列表 */}
+            {/* 列表內容 */}
             <div className="space-y-2">
                 {filteredTodos.map(t => (
-                    <div key={t.id} className={`bg-white p-4 rounded-2xl border border-milk-tea-50 flex items-center justify-between shadow-sm transition-all ${t.done ? 'opacity-50' : ''}`}>
+                    <div key={t.id} className={`bg-white p-4 rounded-2xl border border-milk-tea-50 flex items-center justify-between shadow-sm transition-all group ${t.done ? 'bg-milk-tea-50/50' : ''}`}>
                         <div className="flex items-center gap-3 flex-1" onClick={() => handleToggle(t.id)}>
                             <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${t.done ? 'bg-milk-tea-800 border-milk-tea-800 text-white' : 'border-milk-tea-100'}`}>
                                 {t.done && <i className="fa-solid fa-check text-[10px]"></i>}
                             </div>
-                            <div>
+                            <div className="flex-1">
                                 <span className={`text-xs font-bold block ${t.done ? 'line-through text-milk-tea-200' : 'text-milk-tea-800'}`}>
                                     {t.text}
                                 </span>
@@ -658,7 +675,10 @@ export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }
                                 )}
                             </div>
                         </div>
-                        <button onClick={() => handleDelete(t.id)} className="text-milk-tea-200 hover:text-red-400 p-2 active:scale-90 transition-all">
+                        <button 
+                            onClick={() => handleDelete(t.id)} 
+                            className="text-milk-tea-200 hover:text-red-400 p-2 opacity-0 group-hover:opacity-100 active:scale-90 transition-all"
+                        >
                             <i className="fa-solid fa-trash-can text-[10px]"></i>
                         </button>
                     </div>
@@ -666,7 +686,7 @@ export const TodoView: React.FC<{ data: AppData; setData: (d: AppData) => void }
                 {filteredTodos.length === 0 && (
                     <div className="text-center py-20 opacity-20">
                         <i className={`fa-solid ${activeTab === 'general' ? 'fa-clipboard-list' : 'fa-suitcase-rolling'} text-5xl mb-4`}></i>
-                        <p className="text-[10px] font-black uppercase tracking-widest">目前沒有項目</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest">目前沒有任何項目</p>
                     </div>
                 )}
             </div>
@@ -805,7 +825,7 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
             {integratingSpot && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[110] flex items-end justify-center backdrop-blur-sm p-4">
                     <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[70vh]">
-                        <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4"><div><h3 className="text-lg font-black text-milk-tea-900">加入行程</h3><p className="text-[10px] font-bold text-milk-tea-400">將「{integratingSpot.name}」分配至哪一天？</p></div><button onClick={() => setIntegratingSpot(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
+                        <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4"><div><h3 className="text-lg font-black text-milk-tea-900">加入行程</h3><p className="text-[10px] font-bold text-milk-tea-400">將「${integratingSpot.name}」分配至哪一天？</p></div><button onClick={() => setIntegratingSpot(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
                         <div className="grid grid-cols-1 gap-2">{data.itinerary.map((day, idx) => (<button key={day.id} onClick={() => handleAddToItinerary(idx)} className="w-full p-4 bg-milk-tea-50 hover:bg-milk-tea-100 rounded-2xl flex justify-between items-center transition-all group"><div className="text-left"><span className="text-[10px] font-black text-milk-tea-800 uppercase block">{day.date}</span><span className="text-xs font-bold text-milk-tea-400">{day.theme}</span></div><i className="fa-solid fa-chevron-right text-milk-tea-200 group-hover:text-milk-tea-500 transition-colors"></i></button>))}</div>
                     </div>
                 </div>
@@ -943,7 +963,7 @@ export const GasView: React.FC<{ data: AppData; setData: (d: AppData) => void }>
             {integratingStation && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[110] flex items-end justify-center backdrop-blur-sm p-4">
                     <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[70vh]">
-                        <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4"><div><h3 className="text-lg font-black text-milk-tea-900">加入行程</h3><p className="text-[10px] font-bold text-milk-tea-400">將「{integratingStation.name}」加入哪一天？</p></div><button onClick={() => setIntegratingStation(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
+                        <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4"><div><h3 className="text-lg font-black text-milk-tea-900">加入行程</h3><p className="text-[10px] font-bold text-milk-tea-400">將「${integratingStation.name}」加入哪一天？</p></div><button onClick={() => setIntegratingStation(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
                         <div className="grid grid-cols-1 gap-2">{data.itinerary.map((day, idx) => (<button key={day.id} onClick={() => handleAddToItinerary(idx)} className="w-full p-4 bg-milk-tea-50 hover:bg-milk-tea-100 rounded-2xl flex justify-between items-center transition-all group"><div className="text-left"><span className="text-[10px] font-black text-milk-tea-800 uppercase block">{day.date}</span><span className="text-xs font-bold text-milk-tea-400">{day.theme}</span></div><i className="fa-solid fa-chevron-right text-milk-tea-200 group-hover:text-milk-tea-500 transition-colors"></i></button>))}</div>
                     </div>
                 </div>
