@@ -5,6 +5,7 @@ import { loadData, saveData, AppData } from './services/storageService';
 import { DashboardView, ItineraryView, ExpenseView, SpotsView, MapView, TodoView, GasView, SurvivalGuideView } from './components/Views';
 import { GoogleGenAI } from '@google/genai';
 
+// 修正編譯器對 process 的檢查
 declare var process: any;
 
 const BottomNav: React.FC<{ view: ViewType; setView: (v: ViewType) => void }> = ({ view, setView }) => {
@@ -35,8 +36,9 @@ const AIAssistant: React.FC<{ data: AppData }> = ({ data }) => {
     const askAI = async () => {
         setLoading(true);
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const prompt = `你是一個美西旅遊專家。這是目前的行程摘要：${data.itinerary.map(d => d.date + d.theme).join(', ')}。請給我三個旅遊建議或提醒。`;
+            // 每次使用時才建立實例，確保 API_KEY 已從環境變數載入
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+            const prompt = `你是一個美西旅遊專家。這是目前的行程：${data.itinerary.map(d => d.date + d.theme).join(', ')}。請給我三個簡短的旅遊建議。`;
             const result = await ai.models.generateContent({
                 model: 'gemini-3-flash-preview',
                 contents: prompt
@@ -44,7 +46,7 @@ const AIAssistant: React.FC<{ data: AppData }> = ({ data }) => {
             setResponse(result.text || "AI 暫時無法回應");
         } catch (e) { 
             console.error(e);
-            setResponse("抱歉，我現在無法連線，請檢查 API Key。"); 
+            setResponse("抱歉，我現在無法連線 AI。"); 
         }
         setLoading(false);
     };
@@ -55,7 +57,7 @@ const AIAssistant: React.FC<{ data: AppData }> = ({ data }) => {
                 <i className={`fa-solid ${isOpen ? 'fa-xmark' : 'fa-robot'}`}></i>
             </button>
             {isOpen && (
-                <div className="absolute bottom-14 right-0 w-64 bg-white rounded-2xl p-4 shadow-2xl border border-milk-tea-100 animate-in fade-in slide-in-from-bottom-4">
+                <div className="absolute bottom-14 right-0 w-64 bg-white rounded-2xl p-4 shadow-2xl border border-milk-tea-100">
                     <h4 className="text-xs font-black text-milk-tea-800 mb-2">AI 旅遊助理</h4>
                     <div className="text-[11px] font-bold leading-relaxed text-milk-tea-600 max-h-48 overflow-y-auto no-scrollbar whitespace-pre-wrap">
                         {loading ? '思考中...' : response}
@@ -72,12 +74,12 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
         <div className="space-y-4">
             <div className="bg-white p-5 rounded-3xl shadow-sm border border-milk-tea-100">
                 <h3 className="font-black mb-3 text-sm text-milk-tea-800 uppercase tracking-tighter">兩人同步協作</h3>
-                <p className="text-[10px] font-bold text-gray-400 mb-4">將同步碼傳給另一半，對方貼上後即可同步最新行程。</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-4">將同步碼傳給旅伴，對方貼上後即可同步。</p>
                 <button onClick={() => {
                     const code = btoa(encodeURIComponent(JSON.stringify(data)));
                     navigator.clipboard.writeText(code);
-                    alert("同步碼已複製！快傳給旅伴吧。");
-                }} className="w-full py-3 bg-milk-tea-800 text-white rounded-xl text-xs font-black mb-3 active:scale-95 transition-transform shadow-md">產生我的同步碼</button>
+                    alert("同步碼已複製！");
+                }} className="w-full py-3 bg-milk-tea-800 text-white rounded-xl text-xs font-black mb-3 active:scale-95 transition-transform">產生我的同步碼</button>
                 <div className="flex gap-2">
                     <input value={syncCode} onChange={e => setSyncCode(e.target.value)} placeholder="貼上對方的代碼" className="flex-1 p-3 bg-milk-tea-50 rounded-xl text-xs outline-none text-black font-black border border-milk-tea-100" />
                     <button onClick={() => {
@@ -88,8 +90,8 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
                                 setData(decoded);
                                 alert("同步成功！");
                             }
-                        } catch(e) { alert("代碼無效。"); }
-                    }} className="px-4 bg-milk-tea-100 text-milk-tea-800 rounded-xl text-xs font-black active:scale-95 transition-transform">同步</button>
+                        } catch(e) { alert("無效的代碼。"); }
+                    }} className="px-4 bg-milk-tea-100 text-milk-tea-800 rounded-xl text-xs font-black active:scale-95">同步</button>
                 </div>
             </div>
         </div>
@@ -99,13 +101,8 @@ const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> =
 export default function App() {
     const [view, setView] = useState<ViewType>('dashboard');
     const [selectedDayIndex, setSelectedDayIndex] = useState(0);
-    const [data, setData] = useState<AppData | null>(null);
-
-    useEffect(() => {
-        setData(loadData());
-    }, []);
-
-    if (!data) return null;
+    // 直接同步初始化，不要等 useEffect
+    const [data, setData] = useState<AppData>(loadData());
 
     const handleSetData = (newData: AppData) => {
         setData(newData);
