@@ -31,6 +31,7 @@ export interface TripEvent {
     location: string;
     note: string;
     updatedAt: number;
+    order: number; // 新增排序權重
     url?: string;
     bookingInfo?: string;
     cost?: number;
