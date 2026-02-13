@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -36,10 +37,11 @@
             font-family: 'Noto Sans TC', sans-serif; 
             overflow-x: hidden; 
             margin: 0;
+            -webkit-tap-highlight-color: transparent;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-        /* 避免白畫面閃爍 */
+        /* 避免 React 渲染前的白屏 */
         #root:empty::before {
             content: "冒險載入中...";
             position: absolute;
@@ -48,12 +50,17 @@
             transform: translate(-50%, -50%);
             font-weight: 900;
             color: #B09A83;
+            letter-spacing: 0.1em;
         }
+        .animate-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
     "react/": "https://esm.sh/react@^19.2.4/",
     "vite": "https://esm.sh/vite@^7.3.1",
