@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ViewType } from './types';
 import { loadData, saveData, AppData, getInitialData, mergeAppData } from './services/storageService';
 import { DashboardView, ItineraryView, ExpenseView, SpotsView, MapView, TodoView, GasView, SurvivalGuideView } from './components/Views';
@@ -23,6 +23,26 @@ const BottomNav: React.FC<{ view: ViewType; setView: (v: ViewType) => void }> = 
         </nav>
     );
 };
+
+const SyncToast: React.FC<{ onDismiss: () => void; onSync: () => void }> = ({ onDismiss, onSync }) => (
+    <div className="fixed top-20 left-4 right-4 z-[200] max-w-md mx-auto animate-in">
+        <div className="bg-milk-tea-800 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between border border-white/10">
+            <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">
+                    <i className="fa-solid fa-wifi text-xs"></i>
+                </div>
+                <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">網路已恢復</p>
+                    <p className="text-xs font-bold">要與隊友同步行程嗎？</p>
+                </div>
+            </div>
+            <div className="flex gap-2">
+                <button onClick={onDismiss} className="px-3 py-2 text-[10px] font-black opacity-40 uppercase">忽略</button>
+                <button onClick={onSync} className="px-4 py-2 bg-white text-milk-tea-800 rounded-xl text-[10px] font-black uppercase shadow-lg">前往同步</button>
+            </div>
+        </div>
+    </div>
+);
 
 const SettingsView: React.FC<{ data: AppData; setData: (d: AppData) => void }> = ({ data, setData }) => {
     const [importCode, setImportCode] = useState('');
@@ -153,6 +173,23 @@ export default function App() {
     const [view, setView] = useState<ViewType>('dashboard');
     const [selectedDayIndex, setSelectedDayIndex] = useState(0);
     const [data, setData] = useState<AppData>(loadData());
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+    const [showSyncReminder, setShowSyncReminder] = useState(false);
+
+    useEffect(() => {
+        const handleOnline = () => {
+            setIsOnline(true);
+            setShowSyncReminder(true);
+        };
+        const handleOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     const handleSetData = (newData: AppData) => {
         setData(newData);
@@ -161,6 +198,21 @@ export default function App() {
 
     return (
         <div className="max-w-md mx-auto h-screen flex flex-col bg-milk-tea-50 relative overflow-hidden shadow-2xl border-x border-milk-tea-100">
+            {/* 網路狀態提示 (離線時) */}
+            {!isOnline && (
+                <div className="bg-orange-500 text-white text-[9px] font-black text-center py-1 uppercase tracking-[0.2em] z-[150]">
+                    <i className="fa-solid fa-plane mr-2"></i> 離線模式 (資料仍會暫存在本地)
+                </div>
+            )}
+
+            {/* 同步提醒 */}
+            {showSyncReminder && (
+                <SyncToast 
+                    onDismiss={() => setShowSyncReminder(false)} 
+                    onSync={() => { setView('settings'); setShowSyncReminder(false); }} 
+                />
+            )}
+
             {/* 修正 iPhone 頂部安全區域間距 */}
             <main className="flex-1 overflow-y-auto p-4 pb-32 no-scrollbar" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}>
                 {view === 'dashboard' && <DashboardView data={data} setView={setView} setSelectedDayIndex={setSelectedDayIndex} />}
