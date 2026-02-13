@@ -1,0 +1,21 @@
+{
+  "name": "CoTravel 美西之旅",
+  "short_name": "CoTravel",
+  "description": "Collaborative travel planner for US West Coast trip.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F9F7F5",
+  "theme_color": "#F2ECE6",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/826/826070.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/826/826070.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
