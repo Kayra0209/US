@@ -1,15 +1,16 @@
-
-import { AppSettings, Expense, ItineraryDay, Spot, Todo, GasStation } from '../types';
+import { AppSettings, Expense, ItineraryDay, Spot, Todo, GasStation, ChatMessage } from '../types';
 
 const STORAGE_KEY = 'us_trip_v4_react';
 
 export interface AppData {
+    tripName: string; // 新增行程名稱
     itinerary: ItineraryDay[];
     expenses: Expense[];
     todos: Todo[];
     backupSpots: Spot[];
     gasStations: GasStation[];
     settings: AppSettings;
+    chat: ChatMessage[];
     lastUpdated: number;
 }
 
@@ -43,20 +44,29 @@ const DEFAULT_SETTINGS: AppSettings = {
     googleMapsKey: ''
 };
 
+export const getInitialData = (): AppData => ({
+    tripName: '2026 美西之旅',
+    itinerary: DEFAULT_ITINERARY,
+    expenses: [],
+    todos: DEFAULT_TODOS,
+    backupSpots: [],
+    gasStations: DEFAULT_GAS_STATIONS,
+    settings: DEFAULT_SETTINGS,
+    chat: [],
+    lastUpdated: Date.now()
+});
+
 export const loadData = (): AppData => {
     try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) return JSON.parse(stored);
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            // 確保舊資料升級時有預設名稱
+            if (!parsed.tripName) parsed.tripName = '2026 美西之旅';
+            return parsed;
+        }
     } catch (e) { console.error(e); }
-    return {
-        itinerary: DEFAULT_ITINERARY,
-        expenses: [],
-        todos: DEFAULT_TODOS,
-        backupSpots: [],
-        gasStations: DEFAULT_GAS_STATIONS,
-        settings: DEFAULT_SETTINGS,
-        lastUpdated: Date.now()
-    };
+    return getInitialData();
 };
 
 export const saveData = (data: AppData) => {
