@@ -40,6 +40,7 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        /* 避免 React 渲染前的白屏 */
         #root:empty::before {
             content: "冒險載入中...";
             position: absolute;
@@ -53,7 +54,7 @@
         .animate-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* 防止行動端橡皮筋回彈 */
+        /* 防止 iPhone 橡皮筋回彈影響體驗 */
         html, body { height: 100%; overflow: hidden; position: fixed; width: 100%; }
         #root { height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     </style>
