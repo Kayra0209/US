@@ -75,15 +75,6 @@ const openDailyRoute = (day: ItineraryDay) => {
     window.open(url, '_blank');
 };
 
-const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = error => reject(error);
-    });
-};
-
 // --- Weather Widget ---
 const WeatherWidget: React.FC<{ lat: number; lon: number }> = ({ lat, lon }) => {
     const [weather, setWeather] = useState<{ temp: number; code: number } | null>(null);
@@ -161,7 +152,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
     const [isDayModalOpen, setIsDayModalOpen] = useState(false);
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState<TripEvent | null>(null);
-    const [isVoucherOpen, setIsVoucherOpen] = useState<string | null>(null);
 
     const [dayForm, setDayForm] = useState<Partial<ItineraryDay>>({ 
         date: '', calendarDate: '', theme: '', mainLocation: '', lat: 34.05, lon: -118.24 
@@ -199,7 +189,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
             type: eventForm.type as EventType || 'sightseeing',
             location: eventForm.location || '',
             note: eventForm.note || '',
-            photo: eventForm.photo,
             updatedAt: Date.now()
         };
         const updatedEvents = editingEvent 
@@ -218,13 +207,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
         setData({ ...data, itinerary: updatedItinerary });
         saveData({ ...data, itinerary: updatedItinerary });
         setIsEventModalOpen(false);
-    };
-
-    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) {
-            const base64 = await fileToBase64(e.target.files[0]);
-            setEventForm({ ...eventForm, photo: base64 });
-        }
     };
 
     return (
@@ -255,7 +237,6 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                                         <button onClick={() => { setEditingEvent(event); setEventForm(event); setIsEventModalOpen(true); }} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-pen text-[9px]"></i></button>
                                     </div>
                                 </div>
-                                {event.photo && <img src={event.photo} onClick={() => setIsVoucherOpen(event.photo!)} className="w-full h-20 object-cover rounded-xl mt-2 border border-milk-tea-50" />}
                                 {event.location && <p className="text-[9px] text-milk-tea-400 mt-1 truncate"><i className="fa-solid fa-location-dot mr-1"></i>{event.location}</p>}
                                 {event.note && <p className="text-[9px] text-milk-tea-500 mt-2 bg-milk-tea-50/50 p-2 rounded-lg italic">"{event.note}"</p>}
                             </div>
@@ -293,28 +274,12 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                         </div>
                         <input value={eventForm.location} onChange={e => setEventForm({...eventForm, location: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none" placeholder="地點 / 地址" />
                         
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black text-milk-tea-400 uppercase ml-1">憑證/照片 (截圖)</label>
-                            <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" id="event-pic" />
-                            <label htmlFor="event-pic" className="w-full p-3 bg-milk-tea-50 rounded-xl flex items-center justify-center gap-2 border border-dashed border-milk-tea-200 cursor-pointer">
-                                <i className="fa-solid fa-camera text-xs"></i><span className="text-[10px] font-black">{eventForm.photo ? '更換照片' : '上傳憑證照片'}</span>
-                            </label>
-                            {eventForm.photo && <img src={eventForm.photo} className="w-full h-20 object-cover rounded-xl" />}
-                        </div>
-
                         <textarea rows={2} value={eventForm.note} onChange={e => setEventForm({...eventForm, note: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-bold outline-none resize-none" placeholder="備註..." />
                         <div className="flex gap-3 pt-2">
                             {editingEvent && <button onClick={() => handleDeleteEvent(editingEvent.id)} className="flex-1 py-4 bg-red-50 text-red-500 rounded-2xl text-sm font-black active:scale-95 transition-all">刪除</button>}
                             <button onClick={handleSaveEvent} className="flex-[2] py-4 bg-milk-tea-800 text-white rounded-2xl text-sm font-black active:scale-95 transition-all shadow-lg">儲存</button>
                         </div>
                     </div>
-                </div>
-            )}
-
-            {isVoucherOpen && (
-                <div className="fixed inset-0 bg-milk-tea-900/90 z-[120] flex items-center justify-center p-6" onClick={() => setIsVoucherOpen(null)}>
-                    <img src={isVoucherOpen} className="max-w-full max-h-[80vh] rounded-2xl shadow-2xl animate-in" />
-                    <p className="fixed bottom-10 text-white font-black text-xs uppercase tracking-widest">點擊任意處關閉</p>
                 </div>
             )}
         </div>
