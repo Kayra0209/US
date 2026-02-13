@@ -152,6 +152,7 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
     const [isDayModalOpen, setIsDayModalOpen] = useState(false);
     const [isEventModalOpen, setIsEventModalOpen] = useState(false);
     const [editingEvent, setEditingEvent] = useState<TripEvent | null>(null);
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
     const [dayForm, setDayForm] = useState<Partial<ItineraryDay>>({ 
         date: '', calendarDate: '', theme: '', mainLocation: '', lat: 34.05, lon: -118.24 
@@ -189,12 +190,16 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
             type: eventForm.type as EventType || 'sightseeing',
             location: eventForm.location || '',
             note: eventForm.note || '',
+            order: editingEvent ? editingEvent.order : currentDay.events.length,
             updatedAt: Date.now()
         };
         const updatedEvents = editingEvent 
             ? currentDay.events.map(e => e.id === editingEvent.id ? newEvent : e)
             : [...currentDay.events, newEvent];
-        const sortedEvents = updatedEvents.sort((a, b) => a.time.localeCompare(b.time));
+        
+        // 依照 order 排序而非時間，除非是手動新增且尚未排序過
+        const sortedEvents = updatedEvents.sort((a, b) => (a.order || 0) - (b.order || 0));
+        
         const updatedItinerary = data.itinerary.map((d, i) => i === selectedDayIndex ? { ...d, events: sortedEvents, updatedAt: Date.now() } : d);
         setData({ ...data, itinerary: updatedItinerary });
         saveData({ ...data, itinerary: updatedItinerary });
@@ -207,6 +212,52 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
         setData({ ...data, itinerary: updatedItinerary });
         saveData({ ...data, itinerary: updatedItinerary });
         setIsEventModalOpen(false);
+    };
+
+    // --- Drag and Drop Handlers ---
+    const onDragStart = (e: React.DragEvent, index: number) => {
+        setDraggedIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+        // 手機端可能需要一些回饋
+        const target = e.target as HTMLElement;
+        target.classList.add('opacity-40');
+    };
+
+    const onDragOver = (e: React.DragEvent, index: number) => {
+        e.preventDefault();
+    };
+
+    const onDrop = (e: React.DragEvent, dropIndex: number) => {
+        e.preventDefault();
+        if (draggedIndex === null || draggedIndex === dropIndex) {
+            setDraggedIndex(null);
+            return;
+        }
+
+        const newEvents = [...currentDay.events];
+        const [movedItem] = newEvents.splice(draggedIndex, 1);
+        newEvents.splice(dropIndex, 0, movedItem);
+
+        // 重新分配 order 並更新 updatedAt
+        const finalEvents = newEvents.map((ev, idx) => ({
+            ...ev,
+            order: idx,
+            updatedAt: Date.now()
+        }));
+
+        const updatedItinerary = data.itinerary.map((d, i) => 
+            i === selectedDayIndex ? { ...d, events: finalEvents, updatedAt: Date.now() } : d
+        );
+        
+        setData({ ...data, itinerary: updatedItinerary });
+        saveData({ ...data, itinerary: updatedItinerary });
+        setDraggedIndex(null);
+    };
+
+    const onDragEnd = (e: React.DragEvent) => {
+        const target = e.target as HTMLElement;
+        target.classList.remove('opacity-40');
+        setDraggedIndex(null);
     };
 
     return (
@@ -224,21 +275,36 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
                         <div className="flex flex-col items-end gap-2"><WeatherWidget lat={currentDay.lat} lon={currentDay.lon} /><button onClick={() => openDailyRoute(currentDay)} className="text-[10px] font-black text-white bg-blue-600 px-3 py-1.5 rounded-xl">地圖導航</button></div>
                     </div>
                     <div className="pl-3 border-l-2 border-milk-tea-200 space-y-4 ml-1">
-                        {currentDay.events.map(event => (
-                            <div key={event.id} className="relative bg-white p-4 rounded-2xl border border-milk-tea-50 shadow-sm active:bg-milk-tea-50 transition-all">
-                                <div className={`absolute -left-[18px] top-5 w-2.5 h-2.5 rounded-full border-2 border-white ${getCategoryColor(event.type)}`}></div>
-                                <div className="flex justify-between items-start mb-1">
-                                    <div onClick={() => { setEditingEvent(event); setEventForm(event); setIsEventModalOpen(true); }} className="flex-1 cursor-pointer">
-                                        <div className="flex items-center gap-2"><span className="text-[10px] font-bold text-milk-tea-400">{event.time}</span><span className={`text-[8px] text-white px-2 py-0.5 rounded-full font-black uppercase ${getCategoryColor(event.type)}`}>{getCategoryLabel(event.type)}</span></div>
-                                        <h3 className="text-sm font-bold text-milk-tea-900 mt-0.5">{event.title}</h3>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => openInGoogleMaps(event.location)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center active:scale-90 shadow-sm"><i className="fa-solid fa-compass text-[11px]"></i></button>
-                                        <button onClick={() => { setEditingEvent(event); setEventForm(event); setIsEventModalOpen(true); }} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-pen text-[9px]"></i></button>
-                                    </div>
+                        {currentDay.events.map((event, index) => (
+                            <div 
+                                key={event.id} 
+                                draggable 
+                                onDragStart={(e) => onDragStart(e, index)}
+                                onDragOver={(e) => onDragOver(e, index)}
+                                onDrop={(e) => onDrop(e, index)}
+                                onDragEnd={onDragEnd}
+                                className={`relative bg-white p-4 rounded-2xl border border-milk-tea-50 shadow-sm active:bg-milk-tea-50 transition-all flex items-start gap-3 ${draggedIndex === index ? 'opacity-20 scale-95' : ''}`}
+                            >
+                                {/* Drag Handle */}
+                                <div className="mt-1 text-milk-tea-200 cursor-grab active:cursor-grabbing px-1">
+                                    <i className="fa-solid fa-grip-vertical text-sm"></i>
                                 </div>
-                                {event.location && <p className="text-[9px] text-milk-tea-400 mt-1 truncate"><i className="fa-solid fa-location-dot mr-1"></i>{event.location}</p>}
-                                {event.note && <p className="text-[9px] text-milk-tea-500 mt-2 bg-milk-tea-50/50 p-2 rounded-lg italic">"{event.note}"</p>}
+
+                                <div className="flex-1">
+                                    <div className={`absolute -left-[30px] top-5 w-2.5 h-2.5 rounded-full border-2 border-white ${getCategoryColor(event.type)}`}></div>
+                                    <div className="flex justify-between items-start mb-1">
+                                        <div onClick={() => { setEditingEvent(event); setEventForm(event); setIsEventModalOpen(true); }} className="flex-1 cursor-pointer">
+                                            <div className="flex items-center gap-2"><span className="text-[10px] font-bold text-milk-tea-400">{event.time}</span><span className={`text-[8px] text-white px-2 py-0.5 rounded-full font-black uppercase ${getCategoryColor(event.type)}`}>{getCategoryLabel(event.type)}</span></div>
+                                            <h3 className="text-sm font-bold text-milk-tea-900 mt-0.5">{event.title}</h3>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => openInGoogleMaps(event.location)} className="w-8 h-8 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center active:scale-90 shadow-sm"><i className="fa-solid fa-compass text-[11px]"></i></button>
+                                            <button onClick={() => { setEditingEvent(event); setEventForm(event); setIsEventModalOpen(true); }} className="w-8 h-8 bg-milk-tea-50 text-milk-tea-300 rounded-full flex items-center justify-center shadow-sm"><i className="fa-solid fa-pen text-[9px]"></i></button>
+                                        </div>
+                                    </div>
+                                    {event.location && <p className="text-[9px] text-milk-tea-400 mt-1 truncate"><i className="fa-solid fa-location-dot mr-1"></i>{event.location}</p>}
+                                    {event.note && <p className="text-[9px] text-milk-tea-500 mt-2 bg-milk-tea-50/50 p-2 rounded-lg italic">"{event.note}"</p>}
+                                </div>
                             </div>
                         ))}
                         <button onClick={() => { setEditingEvent(null); setEventForm({time: '12:00', title: '', type: 'sightseeing', location: '', note: ''}); setIsEventModalOpen(true); }} className="w-full py-4 border-2 border-dashed border-milk-tea-200 text-milk-tea-400 rounded-2xl text-[10px] font-black bg-white/50 active:bg-white transition-all"><i className="fa-solid fa-plus mr-2"></i> 新增項目</button>
@@ -500,12 +566,13 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
             type: spotTypeToEventType[integratingSpot.category] || 'sightseeing',
             location: integratingSpot.location || '',
             note: integratingSpot.note || '',
+            order: data.itinerary[dayIndex].events.length,
             updatedAt: Date.now()
         };
 
         const updatedItinerary = data.itinerary.map((day, idx) => {
             if (idx === dayIndex) {
-                const newEvents = [...day.events, newEvent].sort((a, b) => a.time.localeCompare(b.time));
+                const newEvents = [...day.events, newEvent].sort((a, b) => (a.order || 0) - (b.order || 0));
                 return { ...day, events: newEvents, updatedAt: Date.now() };
             }
             return day;
@@ -673,7 +740,7 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
                         <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4">
                             <div>
                                 <h3 className="text-lg font-black text-milk-tea-900">加入行程</h3>
-                                <p className="text-[10px] font-bold text-milk-tea-400">將「{integratingSpot.name}」分配至哪一天？</p>
+                                <p className="text-[10px] font-bold text-milk-tea-400">將「${integratingSpot.name}」分配至哪一天？</p>
                             </div>
                             <button onClick={() => setIntegratingSpot(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button>
                         </div>
