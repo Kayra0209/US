@@ -1,5 +1,5 @@
 
-import { AppSettings, Expense, ItineraryDay, Spot, Todo, GasStation, ChatMessage } from '../types';
+import { AppSettings, Expense, ItineraryDay, Spot, Todo, GasStation, ChatMessage, TripEvent } from '../types';
 
 const STORAGE_KEY = 'us_trip_v5_react';
 
@@ -31,8 +31,8 @@ const DEFAULT_ITINERARY: ItineraryDay[] = [
         date: 'Day 1', calendarDate: '2026-03-27', theme: '🌟 旅程開始', mainLocation: '洛杉磯 LAX', lat: 33.9416, lon: -118.4085, 
         updatedAt: Date.now(),
         events: [
-            { id: 'sample-1', time: '14:00', title: '抵達 LAX 機場', type: 'transport', location: '1 World Way, Los Angeles, CA 90045', note: '拿行李後前往 Car Rental Center 領車。', flightInfo: { flightNumber: 'BR12', airline: 'EVA Air', terminal: 'B' }, updatedAt: Date.now() },
-            { id: 'sample-2', time: '16:00', title: '領取租車', type: 'transport', location: 'Hertz Car Rental - LAX', note: '確認保險、檢查車傷、確認滿油。', updatedAt: Date.now() }
+            { id: 'sample-1', time: '14:00', title: '抵達 LAX 機場', type: 'transport', location: '1 World Way, Los Angeles, CA 90045', note: '拿行李後前往 Car Rental Center 領車。', flightInfo: { flightNumber: 'BR12', airline: 'EVA Air', terminal: 'B' }, updatedAt: Date.now(), order: 0 },
+            { id: 'sample-2', time: '16:00', title: '領取租車', type: 'transport', location: 'Hertz Car Rental - LAX', note: '確認保險、檢查車傷、確認滿油。', updatedAt: Date.now(), order: 1 }
         ]
     }
 ];
@@ -69,6 +69,14 @@ export const loadData = (): AppData => {
             const parsed = JSON.parse(stored);
             if (!parsed.tripName) parsed.tripName = '2026 美西之旅';
             if (!parsed.gasStations || parsed.gasStations.length === 0) parsed.gasStations = DEFAULT_GAS_STATIONS;
+            // 確保行程事件有 order
+            if (parsed.itinerary) {
+                parsed.itinerary.forEach((day: ItineraryDay) => {
+                    day.events.forEach((ev: TripEvent, idx: number) => {
+                        if (ev.order === undefined) ev.order = idx;
+                    });
+                });
+            }
             return parsed;
         }
     } catch (e) { console.error(e); }
@@ -82,9 +90,6 @@ export const saveData = (data: AppData) => {
     } catch (e) { console.error(e); }
 };
 
-/**
- * 智慧合併：基於 ID 與 updatedAt 增量合併兩份資料
- */
 export const mergeAppData = (local: AppData, remote: AppData): AppData => {
     const mergeArray = <T extends { id: string; updatedAt: number }>(arr1: T[], arr2: T[]): T[] => {
         const map = new Map<string, T>();
@@ -98,7 +103,6 @@ export const mergeAppData = (local: AppData, remote: AppData): AppData => {
         return Array.from(map.values());
     };
 
-    // 行程天數比較特殊，還需要合併內部的 events
     const mergeItinerary = (localDays: ItineraryDay[], remoteDays: ItineraryDay[]): ItineraryDay[] => {
         const dayMap = new Map<string, ItineraryDay>();
         localDays.forEach(d => dayMap.set(d.id, d));
@@ -108,10 +112,11 @@ export const mergeAppData = (local: AppData, remote: AppData): AppData => {
             if (!lDay) {
                 dayMap.set(rDay.id, rDay);
             } else {
-                // 如果 ID 相同，取較新的一個作為基礎，並合併 events
                 const base = rDay.updatedAt > lDay.updatedAt ? rDay : lDay;
                 const mergedEvents = mergeArray(lDay.events, rDay.events);
-                dayMap.set(rDay.id, { ...base, events: mergedEvents, updatedAt: Math.max(lDay.updatedAt, rDay.updatedAt) });
+                // 確保合併後依據 order 排序
+                const sortedEvents = mergedEvents.sort((a, b) => (a.order || 0) - (b.order || 0));
+                dayMap.set(rDay.id, { ...base, events: sortedEvents, updatedAt: Math.max(lDay.updatedAt, rDay.updatedAt) });
             }
         });
         return Array.from(dayMap.values());
