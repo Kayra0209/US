@@ -197,7 +197,7 @@ export default function App() {
     };
 
     return (
-        <div className="max-w-md mx-auto h-screen flex flex-col bg-milk-tea-50 relative overflow-hidden shadow-2xl border-x border-milk-tea-100">
+        <div className="max-w-md mx-auto h-[100dvh] flex flex-col bg-milk-tea-50 relative overflow-hidden shadow-2xl border-x border-milk-tea-100">
             {/* 網路狀態提示 (離線時) */}
             {!isOnline && (
                 <div className="bg-orange-500 text-white text-[9px] font-black text-center py-1 uppercase tracking-[0.2em] z-[150]">
