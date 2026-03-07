@@ -328,7 +328,7 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
             ) : <div className="text-center py-20 text-milk-tea-300 font-bold">新增您的第一天行程</div>}
             {isDayModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in">
+                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-[calc(env(safe-area-inset-bottom)+2rem)] space-y-4 shadow-2xl animate-in">
                         <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">新增天數</h3><button onClick={() => setIsDayModalOpen(false)}><i className="fa-solid fa-xmark"></i></button></div>
                         <input value={dayForm.date} onChange={e => setDayForm({...dayForm, date: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none" placeholder="Day 1" />
                         <input type="date" value={dayForm.calendarDate} onChange={e => setDayForm({...dayForm, calendarDate: e.target.value})} className="w-full p-3 bg-milk-tea-50 rounded-xl text-xs font-black outline-none" />
@@ -340,7 +340,7 @@ export const ItineraryView: React.FC<{ data: AppData; setData: any; selectedDayI
             )}
             {isEventModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm p-4">
-                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 overflow-y-auto max-h-[90vh] space-y-4 shadow-2xl animate-in">
+                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] overflow-y-auto max-h-[85dvh] space-y-4 shadow-2xl animate-in">
                         <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">{editingEvent ? '編輯項目' : '新增項目'}</h3><button onClick={() => setIsEventModalOpen(false)}><i className="fa-solid fa-xmark"></i></button></div>
                         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                             {(['sightseeing', 'food', 'transport', 'accommodation', 'event', 'shopping'] as EventType[]).map(cat => (
@@ -557,7 +557,7 @@ export const ExpenseView: React.FC<{ data: AppData; setData: (d: AppData) => voi
             </div>
             {isModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm">
-                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in">
+                    <div className="bg-white w-full max-w-md rounded-t-[32px] p-6 pb-[calc(env(safe-area-inset-bottom)+2rem)] space-y-4 shadow-2xl animate-in">
                         <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">記錄支出</h3><button onClick={() => setIsModalOpen(false)}><i className="fa-solid fa-xmark"></i></button></div>
                         <div className="flex gap-2">
                             {(['cash', 'jing_card', 'xiang_card'] as PaymentMethod[]).map(m => (
@@ -809,7 +809,7 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
             </div>
             {isModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm p-4">
-                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[90vh]">
+                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[85dvh]">
                         <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">新增收藏</h3><button onClick={() => setIsModalOpen(false)}><i className="fa-solid fa-xmark"></i></button></div>
                         <div className="flex gap-2 pb-1">{(['food', 'sightseeing', 'shopping'] as SpotCategory[]).map(cat => (<button key={cat} onClick={() => setForm({...form, category: cat})} className={`flex-1 py-3 rounded-xl text-[10px] font-black border transition-all ${form.category === cat ? 'bg-milk-tea-800 text-white border-transparent' : 'bg-milk-tea-50 text-milk-tea-400 border-milk-tea-100'}`}>{getSpotCategoryLabel(cat)}</button>))}</div>
                         <div className="space-y-3">
@@ -824,7 +824,7 @@ export const SpotsView: React.FC<{ data: AppData; setData: (d: AppData) => void 
             )}
             {integratingSpot && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[110] flex items-end justify-center backdrop-blur-sm p-4">
-                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[70vh]">
+                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[75dvh]">
                         <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4"><div><h3 className="text-lg font-black text-milk-tea-900">加入行程</h3><p className="text-[10px] font-bold text-milk-tea-400">將「${integratingSpot.name}」分配至哪一天？</p></div><button onClick={() => setIntegratingSpot(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
                         <div className="grid grid-cols-1 gap-2">{data.itinerary.map((day, idx) => (<button key={day.id} onClick={() => handleAddToItinerary(idx)} className="w-full p-4 bg-milk-tea-50 hover:bg-milk-tea-100 rounded-2xl flex justify-between items-center transition-all group"><div className="text-left"><span className="text-[10px] font-black text-milk-tea-800 uppercase block">{day.date}</span><span className="text-xs font-bold text-milk-tea-400">{day.theme}</span></div><i className="fa-solid fa-chevron-right text-milk-tea-200 group-hover:text-milk-tea-500 transition-colors"></i></button>))}</div>
                     </div>
@@ -945,7 +945,7 @@ export const GasView: React.FC<{ data: AppData; setData: (d: AppData) => void }>
             {/* 新增油站視窗 */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[100] flex items-end justify-center backdrop-blur-sm p-4">
-                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[90vh]">
+                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[85dvh]">
                         <div className="flex justify-between items-center"><h3 className="text-lg font-black text-milk-tea-900">新增油站</h3><button onClick={() => setIsModalOpen(false)}><i className="fa-solid fa-xmark"></i></button></div>
                         <div className="flex gap-2">
                              <button onClick={() => setForm({...form, isCostco: false})} className={`flex-1 py-3 rounded-xl text-[10px] font-black border transition-all ${!form.isCostco ? 'bg-milk-tea-800 text-white' : 'bg-milk-tea-50 text-milk-tea-400'}`}>一般油站</button>
@@ -962,7 +962,7 @@ export const GasView: React.FC<{ data: AppData; setData: (d: AppData) => void }>
             {/* 整合至行程視窗 */}
             {integratingStation && (
                 <div className="fixed inset-0 bg-milk-tea-900/60 z-[110] flex items-end justify-center backdrop-blur-sm p-4">
-                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-10 space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[70vh]">
+                    <div className="bg-white w-full max-w-md rounded-[32px] p-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] space-y-4 shadow-2xl animate-in overflow-y-auto max-h-[75dvh]">
                         <div className="flex justify-between items-center border-b border-milk-tea-50 pb-4"><div><h3 className="text-lg font-black text-milk-tea-900">加入行程</h3><p className="text-[10px] font-bold text-milk-tea-400">將「${integratingStation.name}」加入哪一天？</p></div><button onClick={() => setIntegratingStation(null)}><i className="fa-solid fa-xmark text-milk-tea-300"></i></button></div>
                         <div className="grid grid-cols-1 gap-2">{data.itinerary.map((day, idx) => (<button key={day.id} onClick={() => handleAddToItinerary(idx)} className="w-full p-4 bg-milk-tea-50 hover:bg-milk-tea-100 rounded-2xl flex justify-between items-center transition-all group"><div className="text-left"><span className="text-[10px] font-black text-milk-tea-800 uppercase block">{day.date}</span><span className="text-xs font-bold text-milk-tea-400">{day.theme}</span></div><i className="fa-solid fa-chevron-right text-milk-tea-200 group-hover:text-milk-tea-500 transition-colors"></i></button>))}</div>
                     </div>
